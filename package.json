@@ -24,7 +24,7 @@
   },
   "scripts": {
     "start": "craco start",
-    "server": "ts-node test/server.ts",
+    "server": "ts-node --project test/tsconfig.server.json test/server.ts",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public"
   },
