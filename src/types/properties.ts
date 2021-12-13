@@ -19,11 +19,11 @@ export interface NumberProperty extends BaseProperty<number> {
 }
 
 export interface BooleanProperty extends BaseProperty<boolean> {
-    
+
 }
 
-export interface ListProperty{
-    StringProperty: StringProperty;
-    NumberProperty: NumberProperty;
-    BooleanProperty: BooleanProperty;
-}
+// export interface ListProperty {
+//     StringProperty: StringProperty;
+//     NumberProperty: NumberProperty;
+//     BooleanProperty: BooleanProperty;
+// }

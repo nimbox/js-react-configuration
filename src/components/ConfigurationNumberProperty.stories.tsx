@@ -2,6 +2,7 @@ import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { NumberProperty } from '../types/properties';
 import { ConfigurationNumberProperty } from './ConfigurationNumberProperty';
 
+
 export default {
     title: 'Components/NumberProperty',
     component: ConfigurationNumberProperty,
@@ -23,7 +24,7 @@ export const Default: ComponentStory<typeof ConfigurationNumberProperty> = () =>
     };
 
     return (
-        <ConfigurationNumberProperty property={property} onChange={(property, value) => console.log('Setting', property, 'to', value)}/>
+        <ConfigurationNumberProperty property={property} onChange={(property, value) => console.log('Setting', property, 'to', value)} />
     );
 
 };

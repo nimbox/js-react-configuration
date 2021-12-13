@@ -1,7 +1,7 @@
-import { FocusEvent, FC, useState, useEffect } from 'react';
+import { FC, FocusEvent, useState } from 'react';
 import { StringProperty } from '../types/properties';
 import { ConfigurationBaseProperty, ConfigurationBasePropertyProps } from './ConfigurationBaseProperty';
-import '../App.css';
+
 
 export interface ConfigurationStringPropertyProps extends ConfigurationBasePropertyProps {
 
@@ -13,14 +13,14 @@ export interface ConfigurationStringPropertyProps extends ConfigurationBasePrope
 export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> = ({ property, onChange }) => {
 
     const [inputValue, setInputValue] = useState(property.defaultValue)
-    
+
     const handleBlur: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
         console.log('blur');
-        if(property.minLength!== undefined && property.maxLength!== undefined){
-            if(inputValue.length >= property?.minLength && inputValue.length <= property?.maxLength){
+        if (property.minLength !== undefined && property.maxLength !== undefined) {
+            if (inputValue.length >= property?.minLength && inputValue.length <= property?.maxLength) {
                 setInputValue(e.target.value)
             }
-            else{
+            else {
                 setInputValue(property.defaultValue)
             }
         }
@@ -28,7 +28,7 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
 
     const handleChange: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
         // Validate if e is the defaultValue
-        if(String(e) == property.defaultValue) {
+        if (String(e) == property.defaultValue) {
             return (setInputValue(String(e)))
         }
         // Validate if the user entered a number
@@ -38,7 +38,7 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
         }
     }
 
-    
+
     return (
         <ConfigurationBaseProperty property={property} onChange={onChange}>
             <input type="text" onFocus={() => console.log('focus')} onBlur={handleBlur} onChange={handleChange} value={inputValue} className='rounded-sm p-1' />

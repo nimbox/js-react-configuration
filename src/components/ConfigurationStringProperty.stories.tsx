@@ -2,6 +2,7 @@ import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { StringProperty } from '../types/properties';
 import { ConfigurationStringProperty } from './ConfigurationStringProperty';
 
+
 export default {
     title: 'Components/StringProperty',
     component: ConfigurationStringProperty,

@@ -1,5 +1,5 @@
+import { gql, useQuery } from '@apollo/client';
 import React from 'react';
-import {ApolloClient, InMemoryCache, ApolloProvider, useQuery, useMutation, gql} from '@apollo/client';
 
 
 
@@ -11,7 +11,7 @@ export const ReadFromGraphQL: React.FC = () => {
           }
         `;
 
-    const {data, loading, error} = useQuery(QUERY);
+    const { data, loading, error } = useQuery(QUERY);
 
     if (loading) {
         return <p>Loading...</p>

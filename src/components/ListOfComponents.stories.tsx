@@ -1,7 +1,6 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
-import { ListProperty, StringProperty } from '../types/properties';
-import { ConfigurationStringProperty } from './ConfigurationStringProperty';
 import { ConfigurationListOfComponents } from './ListOfComponents';
+
 
 export default {
     title: 'Components/ListOfComponents',
@@ -24,13 +23,13 @@ export const Default: ComponentStory<typeof ConfigurationListOfComponents> = () 
                 maxLength: 10,
                 description: 'Description of a **string** field, click <FONT COLOR="blue">[here](https://www.google.com)</FONT> and go to Google'
             },
-            { 
+            {
                 defaultValue: false,
                 type: 'boolean',
                 title: 'Number Field Title',
                 description: 'Description of a **boolean** field, click <FONT COLOR="blue">[here](https://www.google.com)</FONT> and go to Google'
             },
-            { 
+            {
                 defaultValue: 12,
                 type: 'number',
                 title: 'Number Field Title',
@@ -40,7 +39,7 @@ export const Default: ComponentStory<typeof ConfigurationListOfComponents> = () 
             }
         ]
     );
-    
+
 
     return (
         <ConfigurationListOfComponents property={property} />

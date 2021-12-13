@@ -2,6 +2,7 @@ import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { BooleanProperty } from '../types/properties';
 import { ConfigurationBooleanProperty } from './ConfigurationBooleanProperty';
 
+
 export default {
     title: 'Components/BooleanProperty',
     component: ConfigurationBooleanProperty,
@@ -21,7 +22,7 @@ export const Default: ComponentStory<typeof ConfigurationBooleanProperty> = () =
     };
 
     return (
-        <ConfigurationBooleanProperty property={property} onChange={(property, value) => console.log('Setting', property, 'to', value)}/>
+        <ConfigurationBooleanProperty property={property} onChange={(property, value) => console.log('Setting', property, 'to', value)} />
     );
 
 };
