@@ -5,6 +5,7 @@ const { marked } = require('marked');
 
 export interface ConfigurationBasePropertyProps {
 
+    key: string;
     property: BaseProperty<any>;
 
     onChange: (key: string, value: any) => void;
@@ -57,6 +58,7 @@ export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ 
             <div className='flex justify-start p-1.5'>
 
                 <div className='p-1.5 flex justify-center items-center'>
+                    {/* {React.cloneElement(children, {onChange: ...})}  */}
                     {children}
                 </div>
 

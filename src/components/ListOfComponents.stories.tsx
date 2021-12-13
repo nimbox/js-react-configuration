@@ -1,3 +1,4 @@
+import { useMutation } from '@apollo/client';
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { ConfigurationListOfComponents } from './ListOfComponents';
 
@@ -13,7 +14,7 @@ export default {
 
 export const Default: ComponentStory<typeof ConfigurationListOfComponents> = () => {
 
-    const property: any[] = (
+    const configurations: any[] = (
         [
             {
                 defaultValue: 'None',
@@ -40,9 +41,30 @@ export const Default: ComponentStory<typeof ConfigurationListOfComponents> = () 
         ]
     );
 
+    const [values, setValues] = useState<any>({});
+
+    const handleChange = (key: string, value: any) => {
+
+        console.log('change property', key, 'to', value);
+
+        // const { [key], ... oldValues} = values;
+        // setValues(values, { ...oldValues, [key]: value });
+
+        // Not good!!!
+        // values[key] = value;
+
+        setValues(values, { ...values, [key]: value });
+
+    };
+
+
 
     return (
-        <ConfigurationListOfComponents property={property} />
+        <ConfigurationListOfComponents
+            configurations={configurations}
+            values={values}
+            onChange={handleChange}
+        />
     );
 
 };

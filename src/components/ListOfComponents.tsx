@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { ConfigurationBooleanProperty } from './ConfigurationBooleanProperty';
 import { ConfigurationNumberProperty } from './ConfigurationNumberProperty';
 import { ConfigurationStringProperty } from './ConfigurationStringProperty';
@@ -6,7 +6,13 @@ import { ConfigurationStringProperty } from './ConfigurationStringProperty';
 
 const body: Array<JSX.Element> = []
 
-export const ConfigurationListOfComponents: FC<any> = (property, onChange: (key: string, value: any) => void) => {
+export interface ConfigurationListOfComponents {
+    configurations: any;
+    values: any;
+    onChange: (key: string, value: any) => void
+}
+
+export const ConfigurationListOfComponents: FC<ConfigurationListOfComponents> = ({ configurations, values, onChange }) => {
 
     //    for (var i=0;i<property.property.length;i++){
     //        console.log(property.property[i].type)
@@ -42,10 +48,40 @@ export const ConfigurationListOfComponents: FC<any> = (property, onChange: (key:
         }
     }
 
+    const getPropertyEditor = (property: any, value, onChange) => {
+        switch (property.type) {
+            case 'string':
+                return (<ConfigurationStringProperty property={property} onChange={onChange} />);
+
+            case 'number':
+                return (<ConfigurationNumberProperty property={property} value={value} onChange={onChange} />);
+
+            case 'boolean':
+                return (<ConfigurationBooleanProperty property={property} onChange={(property)} />);
+
+        }
+    };
+
     return (
-        <>
-            {body}
-        </>
+        <div className="flex flex-row">
+            <div>
+                {configurations.map((configuration) =>
+                    <h3>{configuration.title}</h3>
+                )}
+            </div>
+            <div>
+                {configurations.map((configuration) => (
+                    <div>
+                        <h3>{configuration.title}</h3>
+                        {configuration.properties.map((key, property) =>
+                            <div>
+                                {getPropertyEditor(key, values[key], property, onChange)}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
     );
 
 };

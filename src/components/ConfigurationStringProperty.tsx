@@ -10,23 +10,12 @@ export interface ConfigurationStringPropertyProps extends ConfigurationBasePrope
 }
 
 
-export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> = ({ property, onChange }) => {
+export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> = ({ key, value, property, onChange }) => {
 
     const [inputValue, setInputValue] = useState(property.defaultValue)
 
-    const handleBlur: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
-        console.log('blur');
-        if (property.minLength !== undefined && property.maxLength !== undefined) {
-            if (inputValue.length >= property?.minLength && inputValue.length <= property?.maxLength) {
-                setInputValue(e.target.value)
-            }
-            else {
-                setInputValue(property.defaultValue)
-            }
-        }
-    };
-
     const handleChange: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
+
         // Validate if e is the defaultValue
         if (String(e) == property.defaultValue) {
             return (setInputValue(String(e)))
@@ -36,8 +25,27 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
         if (matchError === null) {
             setInputValue(e.target.value)
         }
+        // ONCHANGE...
     }
 
+    const handleBlur: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
+        
+        console.log('blur');
+
+        // If erorr, setError('number.outOfRange');
+        // onChange(property.key, inputValue);
+
+        onChange('ar.months', inputValue);
+
+        if (property.minLength !== undefined && property.maxLength !== undefined) {
+            if (inputValue.length >= property?.minLength && inputValue.length <= property?.maxLength) {
+                setInputValue(e.target.value)
+            }
+            else {
+                setInputValue(property.defaultValue)
+            }
+        }
+    };
 
     return (
         <ConfigurationBaseProperty property={property} onChange={onChange}>
