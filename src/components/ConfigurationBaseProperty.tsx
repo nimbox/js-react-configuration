@@ -1,4 +1,4 @@
-import { FC, FocusEvent, useState } from 'react';
+import { FC, FocusEvent, useState, cloneElement } from 'react';
 import { BaseProperty } from '../types/properties';
 const { marked } = require('marked');
 
@@ -12,13 +12,17 @@ export interface ConfigurationBasePropertyProps {
 
 }
 
-export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ property, children }) => {
+export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ property, children, key }) => {
 
     const [showDropdown, setShowDropdown] = useState(false);
+    const [defaultValues, setDefaultValues] = useState(false)
+
+    console.log(key)
 
     const callOnChange = () => {
         setShowDropdown(!showDropdown);
-        children.props.onChange(property.defaultValue);
+        // children.props.onChange(property.defaultValue);
+        children.onChange(property.defaultValue);
     }
 
     const getMarkdownDescription = () => {
@@ -58,8 +62,9 @@ export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ 
             <div className='flex justify-start p-1.5'>
 
                 <div className='p-1.5 flex justify-center items-center'>
-                    {/* {React.cloneElement(children, {onChange: ...})}  */}
-                    {children}
+
+                    {cloneElement(children, {onChange: (key, property.defaultValue)})}
+                    {/* {children} */}
                 </div>
 
                 <div className='p-1.5'>

@@ -6,12 +6,13 @@ import { ConfigurationBaseProperty, ConfigurationBasePropertyProps } from './Con
 export interface ConfigurationNumberPropertyProps extends ConfigurationBasePropertyProps { 
 
     property: NumberProperty;
-
+    value: number;
+    key: string;
 }
 
-export const ConfigurationNumberProperty: FC<ConfigurationNumberPropertyProps> = ({ property, onChange }) => {
+export const ConfigurationNumberProperty: FC<ConfigurationNumberPropertyProps> = ({ key, value, property, onChange }) => {
 
-    const [inputValue, setInputValue] = useState(property.defaultValue)
+    const [inputValue, setInputValue] = useState(value)
 
     const handleBlur: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
         console.log('blur');
@@ -33,7 +34,7 @@ export const ConfigurationNumberProperty: FC<ConfigurationNumberPropertyProps> =
     }
 
     return (
-        <ConfigurationBaseProperty property={property} onChange={onChange}>
+        <ConfigurationBaseProperty property={property} onChange={onChange} key={key}>
             <input type="number" onFocus={() => console.log('focus')} onBlur={handleBlur} onChange={handleChange} value={inputValue} min={property.min} max={property.max} className='rounded-sm p-1'/>
         </ConfigurationBaseProperty>
     );

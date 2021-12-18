@@ -6,12 +6,14 @@ import { ConfigurationBaseProperty, ConfigurationBasePropertyProps } from './Con
 export interface ConfigurationBooleanPropertyProps extends ConfigurationBasePropertyProps {
 
     property: BooleanProperty;
+    value: boolean;
+    key: string;
 
 }
 
-export const ConfigurationBooleanProperty: FC<ConfigurationBooleanPropertyProps> = ({ property, onChange }) => {
+export const ConfigurationBooleanProperty: FC<ConfigurationBooleanPropertyProps> = ({ key, value, property, onChange }) => {
 
-    const [inputValue, setInputValue] = useState(property.defaultValue);
+    const [inputValue, setInputValue] = useState(value);
 
     const handleBlur: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
         console.log('blur');
@@ -27,7 +29,7 @@ export const ConfigurationBooleanProperty: FC<ConfigurationBooleanPropertyProps>
 
 
     return (
-        <ConfigurationBaseProperty property={property} onChange={onChange}>
+        <ConfigurationBaseProperty property={property} onChange={onChange} key={key}>
             <input type="checkbox" checked={inputValue} onFocus={() => console.log('focus')} onBlur={handleBlur} onChange={handleChange} className='rounded-sm p-1 h-5 w-5' />
         </ConfigurationBaseProperty>
     );

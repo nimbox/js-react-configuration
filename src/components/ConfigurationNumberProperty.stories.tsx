@@ -23,8 +23,11 @@ export const Default: ComponentStory<typeof ConfigurationNumberProperty> = () =>
         description: 'Description of a **number** field, click <FONT COLOR="blue">[here](https://www.google.com)</FONT> and go to Google'
     };
 
+    const key: string = 'keyTest';
+    const value: number = 15;
+
     return (
-        <ConfigurationNumberProperty property={property} onChange={(property, value) => console.log('Setting', property, 'to', value)} />
+        <ConfigurationNumberProperty key={key} value={value} property={property} onChange={(property, value) => console.log('Setting', property, 'to', value)} />
     );
 
 };

@@ -21,8 +21,11 @@ export const Default: ComponentStory<typeof ConfigurationBooleanProperty> = () =
         description: 'Description of a **boolean** field, click <FONT COLOR="blue">[here](https://www.google.com)</FONT> and go to Google'
     };
 
+    const key: string = 'keyTest';
+    const value: boolean = true;
+
     return (
-        <ConfigurationBooleanProperty property={property} onChange={(property, value) => console.log('Setting', property, 'to', value)} />
+        <ConfigurationBooleanProperty key={key} value={value} property={property} onChange={(property, value) => console.log('Setting', property, 'to', value)} />
     );
 
 };

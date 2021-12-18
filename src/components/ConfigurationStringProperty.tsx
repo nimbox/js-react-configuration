@@ -6,13 +6,18 @@ import { ConfigurationBaseProperty, ConfigurationBasePropertyProps } from './Con
 export interface ConfigurationStringPropertyProps extends ConfigurationBasePropertyProps {
 
     property: StringProperty;
+    value: string;
+    key: string;
 
 }
 
 
 export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> = ({ key, value, property, onChange }) => {
 
-    const [inputValue, setInputValue] = useState(property.defaultValue)
+    const [inputValue, setInputValue] = useState(value)
+
+    console.log(key) // No lo lee
+    console.log(value) // Si lo lee
 
     const handleChange: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
 
@@ -34,8 +39,8 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
 
         // If erorr, setError('number.outOfRange');
         // onChange(property.key, inputValue);
-
-        onChange('ar.months', inputValue);
+        console.log(key)
+        onChange(key, inputValue);
 
         if (property.minLength !== undefined && property.maxLength !== undefined) {
             if (inputValue.length >= property?.minLength && inputValue.length <= property?.maxLength) {
@@ -48,7 +53,7 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
     };
 
     return (
-        <ConfigurationBaseProperty property={property} onChange={onChange}>
+        <ConfigurationBaseProperty property={property} onChange={onChange} key={key}>
             <input type="text" onFocus={() => console.log('focus')} onBlur={handleBlur} onChange={handleChange} value={inputValue} className='rounded-sm p-1' />
         </ConfigurationBaseProperty>
     );
