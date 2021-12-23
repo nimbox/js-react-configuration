@@ -3,45 +3,47 @@ import { StringProperty } from '../types/properties';
 import { ConfigurationBaseProperty, ConfigurationBasePropertyProps } from './ConfigurationBaseProperty';
 
 
-export interface ConfigurationStringPropertyProps extends ConfigurationBasePropertyProps {
+export interface ConfigurationStringPropertyProps extends Omit<ConfigurationBasePropertyProps, "onSetDefaultValue"|"onCopyToClipboard"> {
 
     property: StringProperty;
     value: string;
-    key: string;
-
+    id: string;
+    onChange: (Key: string, value: any) => void;
+    
 }
 
 
-export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> = ({ key, value, property, onChange }) => {
+export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> = ({ id, value, property, onChange }) => {
 
     const [inputValue, setInputValue] = useState(value)
 
-    console.log(key) // No lo lee
-    console.log(value) // Si lo lee
+    const handleSetDefaultValue = ()=>{
+        setInputValue(property.defaultValue);
+        onChange(id, property.defaultValue)
+    }
+
+    const handleCopyToClipboard =()=>{
+        navigator.clipboard.writeText(inputValue).then(function () {
+            /* clipboard successfully set */
+        }, function () {
+            /* clipboard write failed */
+        });
+    }
 
     const handleChange: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
-
-        // Validate if e is the defaultValue
-        if (String(e) == property.defaultValue) {
-            return (setInputValue(String(e)))
-        }
-        // Validate if the user entered a number
-        var matchError = e.target.value.match(/\d+/g);
-        if (matchError === null) {
-            setInputValue(e.target.value)
-        }
-        // ONCHANGE...
+        setInputValue(e.target.value)
     }
 
     const handleBlur: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
         
         console.log('blur');
 
-        // If erorr, setError('number.outOfRange');
-        // onChange(property.key, inputValue);
-        console.log(key)
-        onChange(key, inputValue);
+        // If the user changed the value of the id, call onChange
+        if(e.target.value !==  value){
+            onChange(id, inputValue);
+        }
 
+        // If the object has minLength and maxLength constraints, use them, otherwise, simply accept the value.
         if (property.minLength !== undefined && property.maxLength !== undefined) {
             if (inputValue.length >= property?.minLength && inputValue.length <= property?.maxLength) {
                 setInputValue(e.target.value)
@@ -50,10 +52,13 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
                 setInputValue(property.defaultValue)
             }
         }
+        else{
+            setInputValue(e.target.value)
+        }
     };
 
     return (
-        <ConfigurationBaseProperty property={property} onChange={onChange} key={key}>
+        <ConfigurationBaseProperty property={property} onSetDefaultValue={handleSetDefaultValue} onCopyToClipboard={handleCopyToClipboard} id={id} value={value}>
             <input type="text" onFocus={() => console.log('focus')} onBlur={handleBlur} onChange={handleChange} value={inputValue} className='rounded-sm p-1' />
         </ConfigurationBaseProperty>
     );

@@ -1,6 +1,6 @@
 import React from 'react';
 import {ApolloClient, InMemoryCache, ApolloProvider, useQuery, useMutation, gql} from '@apollo/client';
-import { ReadFromGraphQL } from './components/Component1';
+import { ReadFromGraphQL } from './components/Atico/Component1';
 import './App.css'
 function App() {
 

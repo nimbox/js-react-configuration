@@ -1,12 +1,15 @@
-import { FC, useState } from 'react';
-import { ConfigurationBooleanProperty } from './ConfigurationBooleanProperty';
-import { ConfigurationNumberProperty } from './ConfigurationNumberProperty';
+import { FC } from 'react';
+import { ConfigurationBooleanProperty } from './Atico/ConfigurationBooleanProperty';
+import { ConfigurationNumberProperty } from './Atico/ConfigurationNumberProperty';
 import { ConfigurationStringProperty } from './ConfigurationStringProperty';
 
-
+interface ConfigurationJson{
+    title: string;
+    properties: string;
+}
 
 export interface ConfigurationListOfComponents {
-    configurations: any;
+    configurations: Array<ConfigurationJson>;
     values: any;
     onChange: (key: string, value: any) => void
 }
@@ -15,107 +18,64 @@ export const ConfigurationListOfComponents: FC<ConfigurationListOfComponents> = 
     
     var body: Array<JSX.Element> = []
 
-    // for (var i = 0; i < property.property.length; i++) {
-    //     if (property.property[i].type === 'string') {
-    //         console.log('Encontre String')
-    //         body.push(
-    //             <ConfigurationStringProperty property={property.property[i]} onChange={(property.property[i])} />
-    //         )
-    //     }
-    //     else if (property.property[i].type === 'number') {
-    //         body.push(
-    //             <ConfigurationNumberProperty property={property.property[i]} onChange={(property.property[i])} />
-    //         )
-    //     }
-    //     else if (property.property[i].type === 'boolean') {
-    //         body.push(
-    //             <ConfigurationBooleanProperty property={property.property[i]} onChange={(property.property[i])} />
-    //         )
-    //     }
-    // }
-
-
+    // Render depending on type
     const getPropertyEditor = (property: any, value: any, key: string, onChange: (key: string, value: any) => void) => {
-        // switch (property.type) {
-        //     case 'string':
-        //         return (<ConfigurationStringProperty key={key} value={value} property={property} onChange={onChange} />);
-
-        //     case 'number':
-        //         return (<ConfigurationNumberProperty key={key} value={value} property={property} onChange={onChange} />);
-
-        //     case 'boolean':
-        //         return (<ConfigurationBooleanProperty key={key} value={value} property={property} onChange={(property)} />);
-
-        // }
         if (property.type === 'string') {
             body.push(
-                <ConfigurationStringProperty property={property} key={key} value={value} onChange={onChange} />
+                <ConfigurationStringProperty property={property} id={key} value={value} onChange={onChange} />
             )
         }
         else if (property.type === 'number') {
             body.push(
-                <ConfigurationNumberProperty property={property} key={key} value={value} onChange={onChange} />
+                <ConfigurationNumberProperty property={property} id={key} value={value} onChange={onChange} />
             )
         }
         else if (property.type === 'boolean') {
             body.push(
-                <ConfigurationBooleanProperty property={property} key={key} value={value} onChange={onChange} />
+                <ConfigurationBooleanProperty property={property} id={key} value={value} onChange={onChange} />
             )
         }
     };
 
-    var arrTitles: Array<any> = [];
-    var arrJSONConfigs: Array<any> = [];
-    var arrKeys: Array<any> = [];
-    Object.keys(configurations).forEach(function(key) {
-        // console.log(key, configurations[key]);
-        arrJSONConfigs.push(configurations[key].properties)
-        Object.keys(configurations[key].properties).forEach(function(key2){
-            // arrJSONConfigs.push(configurations[key].properties[key2])
-            // console.log(configurations[key].properties[key2])
-            // console.log(configurations[key].properties)
-        })
-      arrTitles.push(configurations[key]);
-    });
-    
+    // Iterate settings and values so that only those that exist in both are rendered (and avoid missing value errors).
     const getProperties = (configs: JSON)=>{
-        console.log(Object.keys(configs))
         for(var i=0; i<Object.keys(configs).length; i++){
             for(var j=0; j<Object.keys(values).length;j++){
                 if(Object.keys(configs)[i] === Object.keys(values)[j]){
-                    // console.log(Object.keys(configs)[i]);
-                    // console.log(Object.keys(values)[j])
                     console.log(Object.keys(configs)[i], Object.values(values)[j], Object.values(configs)[i]); //Print: key-value-properties in order.
-                    console.log(i,j)
                     getPropertyEditor(Object.values(configs)[i], Object.values(values)[j], Object.keys(configs)[i], onChange)
                 }
             }
         }
-        return body;
     }
-    console.log(arrJSONConfigs)
+    // Create an array of titles/sections.
+    var arrTitles: Array<string> = [];
+    // Create an array of objects containing its properties.
+    var arrJSONConfigs: Array<any> = [];
 
-    for(var i=0;i<arrJSONConfigs.length;i++){
-        for(var j=0;j<Object.keys(arrJSONConfigs[i]).length;j++){
-            arrKeys.push(Object.keys(arrJSONConfigs[i])[j])
-        }
-    }
-    console.log(arrKeys)
+    // Assign values to arrTitles and arrJsonConfigs.
+    configurations.forEach((configuration) =>{
+        arrJSONConfigs.push(configuration.properties);
+        arrTitles.push(configuration.title);
+    });
 
+    // Call the function that iterates over values and configs.
     arrJSONConfigs.map((configuration) => (
         getProperties(configuration)
     ))
 
     return (
-        <div className="flex flex-row">
-             <div>
-                {arrTitles.map((configuration) =>
-                    <h3>{configuration.title}</h3>
-                )}
+        <div className="flex justify-center">
+            <div className="grid grid-cols-2 gap-4 content-center justify-evenly w-auto">
+                <div className='p-5'>
+                    {arrTitles.map((title) =>
+                        <h3>{title}</h3>
+                    )}
+                </div>
+                <div className='w-full p-5'>
+                    {body}
+                </div> 
             </div>
-            <div className='ml-5'>
-                {body}
-            </div> 
         </div>
     );
 

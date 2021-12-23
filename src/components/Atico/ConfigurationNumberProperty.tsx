@@ -1,16 +1,18 @@
 import { FC, FocusEvent, useState } from 'react';
-import { NumberProperty } from '../types/properties';
-import { ConfigurationBaseProperty, ConfigurationBasePropertyProps } from './ConfigurationBaseProperty';
+import { NumberProperty } from '../../types/properties';
+import { ConfigurationBaseProperty, ConfigurationBasePropertyProps } from '../ConfigurationBaseProperty';
 
 
-export interface ConfigurationNumberPropertyProps extends ConfigurationBasePropertyProps { 
+export interface ConfigurationNumberPropertyProps extends Omit<ConfigurationBasePropertyProps, "onSetDefaultValue"|"onCopyToClipboard"> { 
 
     property: NumberProperty;
     value: number;
-    key: string;
+    id: string;
+    onChange: (Key: string, value: any) => void;
+    
 }
 
-export const ConfigurationNumberProperty: FC<ConfigurationNumberPropertyProps> = ({ key, value, property, onChange }) => {
+export const ConfigurationNumberProperty: FC<ConfigurationNumberPropertyProps> = ({ id, value, property, onChange }) => {
 
     const [inputValue, setInputValue] = useState(value)
 
@@ -34,7 +36,7 @@ export const ConfigurationNumberProperty: FC<ConfigurationNumberPropertyProps> =
     }
 
     return (
-        <ConfigurationBaseProperty property={property} onChange={onChange} key={key}>
+        <ConfigurationBaseProperty property={property} onChange={onChange} key={id}>
             <input type="number" onFocus={() => console.log('focus')} onBlur={handleBlur} onChange={handleChange} value={inputValue} min={property.min} max={property.max} className='rounded-sm p-1'/>
         </ConfigurationBaseProperty>
     );

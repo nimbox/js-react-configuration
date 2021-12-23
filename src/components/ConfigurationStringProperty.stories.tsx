@@ -27,7 +27,7 @@ export const Default: ComponentStory<typeof ConfigurationStringProperty> = () =>
     const value: string = 'valueTest';
 
     return (
-        <ConfigurationStringProperty key={key} property={property} value={value} onChange={(property, value) => console.log('Setting', property, 'to', value)}/>
+        <ConfigurationStringProperty id={key} property={property} value={value} onChange={(property, value) => console.log('Setting', property, 'to', value)} />
     );
 
 };

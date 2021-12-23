@@ -1,17 +1,18 @@
 import { FC, FocusEvent, useState } from 'react';
-import { BooleanProperty } from '../types/properties';
-import { ConfigurationBaseProperty, ConfigurationBasePropertyProps } from './ConfigurationBaseProperty';
+import { BooleanProperty } from '../../types/properties';
+import { ConfigurationBaseProperty, ConfigurationBasePropertyProps } from '../ConfigurationBaseProperty';
 
 
-export interface ConfigurationBooleanPropertyProps extends ConfigurationBasePropertyProps {
+export interface ConfigurationBooleanPropertyProps extends Omit<ConfigurationBasePropertyProps, "onSetDefaultValue"|"onCopyToClipboard"> {
 
     property: BooleanProperty;
     value: boolean;
-    key: string;
+    id: string;
+    onChange: (Key: string, value: any) => void;
 
 }
 
-export const ConfigurationBooleanProperty: FC<ConfigurationBooleanPropertyProps> = ({ key, value, property, onChange }) => {
+export const ConfigurationBooleanProperty: FC<ConfigurationBooleanPropertyProps> = ({ id, value, property, onChange }) => {
 
     const [inputValue, setInputValue] = useState(value);
 
@@ -29,7 +30,7 @@ export const ConfigurationBooleanProperty: FC<ConfigurationBooleanPropertyProps>
 
 
     return (
-        <ConfigurationBaseProperty property={property} onChange={onChange} key={key}>
+        <ConfigurationBaseProperty property={property} onChange={onChange} key={id}>
             <input type="checkbox" checked={inputValue} onFocus={() => console.log('focus')} onBlur={handleBlur} onChange={handleChange} className='rounded-sm p-1 h-5 w-5' />
         </ConfigurationBaseProperty>
     );

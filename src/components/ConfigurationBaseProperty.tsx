@@ -5,24 +5,27 @@ const { marked } = require('marked');
 
 export interface ConfigurationBasePropertyProps {
 
-    key: string;
+    id: string;
+    value: any;
     property: BaseProperty<any>;
-
-    onChange: (key: string, value: any) => void;
+    onSetDefaultValue: Function;
+    onCopyToClipboard: Function;
 
 }
 
-export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ property, children, key }) => {
+export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ property, children, id, value, onSetDefaultValue, onCopyToClipboard }) => {
 
+    
     const [showDropdown, setShowDropdown] = useState(false);
-    const [defaultValues, setDefaultValues] = useState(false)
+    
+    const handleSetDefaultValue = () => {
+        setShowDropdown(false);
+        onSetDefaultValue();
+    }
 
-    console.log(key)
-
-    const callOnChange = () => {
-        setShowDropdown(!showDropdown);
-        // children.props.onChange(property.defaultValue);
-        children.onChange(property.defaultValue);
+    const handleCopyToClipboard = () => {
+        setShowDropdown(false);
+        onCopyToClipboard();
     }
 
     const getMarkdownDescription = () => {
@@ -39,32 +42,15 @@ export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ 
         console.log('DENTRO')
     }
 
-    const copyToClipboard = (e: any) => {
-        setShowDropdown(false);
-        if (children.props.type === 'checkbox') {
-            return navigator.clipboard.writeText(children?.props?.checked).then(function () {
-            }, function () {
-                /* clipboard write failed */
-            })
-        }
-        navigator.clipboard.writeText(children.props.value).then(function () {
-            /* clipboard successfully set */
-        }, function () {
-            /* clipboard write failed */
-        });
-    };
-
     return (
-        <div className="group bg-gray-300 p-2.5 w-6/12 m-1">
+        <div className="group bg-gray-300 p-2.5 w-80 m-1">
 
             <div className="font-bold pt-1.5 pl-1.5">{property.title}</div>
             <div dangerouslySetInnerHTML={getMarkdownDescription()} className='pb-1.5 pl-1.5' />
             <div className='flex justify-start p-1.5'>
 
                 <div className='p-1.5 flex justify-center items-center'>
-
-                    {cloneElement(children, {onChange: (key, property.defaultValue)})}
-                    {/* {children} */}
+                    {children}
                 </div>
 
                 <div className='p-1.5'>
@@ -78,8 +64,8 @@ export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ 
                 {showDropdown &&
                     <div className="origin-top-right absolute mt-10 ml-16 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabIndex={-1} onBlur={handleBlur} onFocus={handleFocus}>
                         <div className="py-1" role="none">
-                            <a onClick={callOnChange} className="text-gray-700 block px-4 py-2 text-sm cursor-pointer" role="menuitem" tabIndex={-1} id="menu-item-0">Set default values</a>
-                            <a onClick={copyToClipboard} className="text-gray-700 block px-4 py-2 text-sm cursor-pointer" role="menuitem" tabIndex={-1} id="menu-item-0">Copy current value</a>
+                            <a onClick={handleSetDefaultValue} className="text-gray-700 block px-4 py-2 text-sm cursor-pointer" role="menuitem" tabIndex={-1} id="menu-item-0">Set default values</a>
+                            <a onClick={handleCopyToClipboard} className="text-gray-700 block px-4 py-2 text-sm cursor-pointer" role="menuitem" tabIndex={-1} id="menu-item-0">Copy current value</a>
                         </div>
                     </div>
                 }
