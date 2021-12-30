@@ -5,15 +5,13 @@ const { marked } = require('marked');
 
 export interface ConfigurationBasePropertyProps {
 
-    id: string;
-    value: any;
     property: BaseProperty<any>;
     onSetDefaultValue: Function;
     onCopyToClipboard: Function;
 
 }
 
-export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ property, children, id, value, onSetDefaultValue, onCopyToClipboard }) => {
+export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ property, children, onSetDefaultValue, onCopyToClipboard }) => {
 
     
     const [showDropdown, setShowDropdown] = useState(false);

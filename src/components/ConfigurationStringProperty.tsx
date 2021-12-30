@@ -38,18 +38,17 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
         
         console.log('blur');
 
-        // If the user changed the value of the id, call onChange
-        if(e.target.value !==  value){
-            onChange(id, inputValue);
-        }
-
         // If the object has minLength and maxLength constraints, use them, otherwise, simply accept the value.
         if (property.minLength !== undefined && property.maxLength !== undefined) {
             if (inputValue.length >= property?.minLength && inputValue.length <= property?.maxLength) {
                 setInputValue(e.target.value)
+                // If the user changed the value of the id, call onChange
+                if(e.target.value !==  value){
+                    onChange(id, inputValue);
+                }
             }
             else {
-                setInputValue(property.defaultValue)
+                setInputValue(value)
             }
         }
         else{
@@ -58,7 +57,7 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
     };
 
     return (
-        <ConfigurationBaseProperty property={property} onSetDefaultValue={handleSetDefaultValue} onCopyToClipboard={handleCopyToClipboard} id={id} value={value}>
+        <ConfigurationBaseProperty property={property} onSetDefaultValue={handleSetDefaultValue} onCopyToClipboard={handleCopyToClipboard}>
             <input type="text" onFocus={() => console.log('focus')} onBlur={handleBlur} onChange={handleChange} value={inputValue} className='rounded-sm p-1' />
         </ConfigurationBaseProperty>
     );

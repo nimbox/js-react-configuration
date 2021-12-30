@@ -18,19 +18,31 @@ export const ConfigurationBooleanProperty: FC<ConfigurationBooleanPropertyProps>
 
     const handleBlur: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
         console.log('blur');
-
+        if(Boolean(inputValue) !==  Boolean(value)){
+            onChange(id, inputValue);
+        }
     };
 
+    const handleSetDefaultValue = ()=>{
+        setInputValue(property.defaultValue);
+        onChange(id, property.defaultValue)
+    }
+
+    const handleCopyToClipboard =()=>{
+        navigator.clipboard.writeText(String(inputValue)).then(function () {
+            /* clipboard successfully set */
+        }, function () {
+            /* clipboard write failed */
+        });
+    }
+
     const handleChange: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
-        if (Boolean(e) === property.defaultValue) {
-            return setInputValue(Boolean(e))
-        }
         setInputValue(!inputValue);
     }
 
 
     return (
-        <ConfigurationBaseProperty property={property} onChange={onChange} key={id}>
+        <ConfigurationBaseProperty property={property} onSetDefaultValue={handleSetDefaultValue} onCopyToClipboard={handleCopyToClipboard}>
             <input type="checkbox" checked={inputValue} onFocus={() => console.log('focus')} onBlur={handleBlur} onChange={handleChange} className='rounded-sm p-1 h-5 w-5' />
         </ConfigurationBaseProperty>
     );
