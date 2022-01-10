@@ -8,15 +8,17 @@ export interface ConfigurationBasePropertyProps {
     property: BaseProperty<any>;
     onSetDefaultValue: Function;
     onCopyToClipboard: Function;
+    onError: string;
 
 }
 
-export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ property, children, onSetDefaultValue, onCopyToClipboard }) => {
+export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ property, children, onSetDefaultValue, onCopyToClipboard, onError }) => {
 
     
     const [showDropdown, setShowDropdown] = useState(false);
     
     const handleSetDefaultValue = () => {
+        console.log('default value')
         setShowDropdown(false);
         onSetDefaultValue();
     }
@@ -31,13 +33,8 @@ export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ 
         return { __html: parsedDescription }
     }
 
-    const handleBlur: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
-        console.log('AFUERA')
+    const handleFocus: (e: FocusEvent<HTMLDivElement>) => void = (e) => {
         setShowDropdown(false);
-    }
-
-    const handleFocus: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
-        console.log('DENTRO')
     }
 
     return (
@@ -47,7 +44,7 @@ export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ 
             <div dangerouslySetInnerHTML={getMarkdownDescription()} className='pb-1.5 pl-1.5' />
             <div className='flex justify-start p-1.5'>
 
-                <div className='p-1.5 flex justify-center items-center'>
+                <div onFocus={handleFocus} className='flex justify-center items-center'>
                     {children}
                 </div>
 
@@ -58,17 +55,25 @@ export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ 
                         </svg>
                     </button>
                 </div>
-
                 {showDropdown &&
-                    <div className="origin-top-right absolute mt-10 ml-16 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabIndex={-1} onBlur={handleBlur} onFocus={handleFocus}>
-                        <div className="py-1" role="none">
-                            <a onClick={handleSetDefaultValue} className="text-gray-700 block px-4 py-2 text-sm cursor-pointer" role="menuitem" tabIndex={-1} id="menu-item-0">Set default values</a>
-                            <a onClick={handleCopyToClipboard} className="text-gray-700 block px-4 py-2 text-sm cursor-pointer" role="menuitem" tabIndex={-1} id="menu-item-0">Copy current value</a>
+                    <div className="origin-top-right absolute mt-10 ml-16 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabIndex={-1} >
+                        <div className="py-0" role="none">
+                            <a onClick={handleSetDefaultValue} className="text-gray-700 hover:bg-gray-300 rounded-t-md block px-4 py-2 text-sm cursor-pointer" role="menuitem" tabIndex={-1} id="menu-item-0">Set default values</a>
+                            <a onClick={handleCopyToClipboard} className="text-gray-700 hover:bg-gray-300 rounded-b-md block px-4 py-2 text-sm cursor-pointer" role="menuitem" tabIndex={-1} id="menu-item-0">Copy current value</a>
                         </div>
                     </div>
                 }
 
+
             </div>
+            {onError && 
+                <div className="flex w-full p-2 justify-between items-center flex-row bg-red-200 rounded-md border-2 border-red-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 m-2 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className='text-red-600 font-medium'>{onError}</p>
+                </div>
+            }
         </div>
     );
 
