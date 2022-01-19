@@ -24,7 +24,7 @@ export const Default: ComponentStory<typeof ConfigurationListOfComponents> = () 
                     "title": "String Field Title",
                     "minLength": 4,
                     "maxLength": 10,
-                    "description": "Description of a **string** field, click <FONT COLOR=\"blue\">[here](https://www.google.com)</FONT> and go to Google"
+                    "description": "Value must be between 4 and characters. Description of a **string** field, click <FONT COLOR=\"blue\">[here](https://www.google.com)</FONT> and go to Google"
                 }
             },
         },
@@ -40,6 +40,8 @@ export const Default: ComponentStory<typeof ConfigurationListOfComponents> = () 
                 "br.underDueClasses": {
                     "defaultValue": "2",
                     "type": "string",
+                    "pattern": "[a-zA-Z0-9]{4,10}",
+                    "patternMessage": "Must be an identifier with 4 to 10 characters long",
                     "title": "Third string Field Title",
                     "description": "Description of a **number** field, click <FONT COLOR=\"blue\">[here](https://www.google.com)</FONT> and go to Google"
                 }

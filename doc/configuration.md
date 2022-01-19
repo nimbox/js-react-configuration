@@ -77,7 +77,7 @@ export interface ConfigurationProperty<T> {
 	scope: ConfigurationScope;
 	deprecationMessage?: string;
 }
-```
+**```**
 
 Esto es el schema:
 
@@ -114,14 +114,14 @@ export interface NumberConfigurationProperty<T> {
 ```js
 enum StringFormatConfiguration =
 	'date' | 'time' | 'datetime' |
-	'uri' | 'ip';
+	'uri' | 'ip' | 'color' | 'email' | 'phone';
 ```
 
 ```js
 export interface SringConfigurationProperty<T> {
 	minLength?: number;
 	maxLength?: number;
-	pattern?: sting;
+	pattern?: sting; // regex
 	patternErrorMessage?: string;
 	format: StringFormatConfiguration;
 	multiline?: boolean
