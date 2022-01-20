@@ -3,13 +3,16 @@ import { StringProperty } from '../types/properties';
 import { validateMultiple } from '../utils/validateMultiple';
 import { ConfigurationBaseProperty, ConfigurationBasePropertyProps } from './ConfigurationBaseProperty';
 import dayjs from 'dayjs';
-
+import classnames from 'classnames';
+import { useTranslation } from 'react-i18next';
 
 export interface ConfigurationStringPropertyProps extends Omit<ConfigurationBasePropertyProps, "onSetDefaultValue" | "onCopyToClipboard" | "onError"> {
 
-    property: StringProperty;
-    value: string;
     id: string;
+    value: string;
+
+    property: StringProperty;
+
     onChange: (Key: string, value: any) => void;
 
 }
@@ -17,10 +20,14 @@ export interface ConfigurationStringPropertyProps extends Omit<ConfigurationBase
 
 export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> = ({ id, value, property, onChange }) => {
 
+    // Check el namespace
+    const { t } = useTranslation('');
+    t('property.number.invalidMinLength', { minLength: 18 });
+
     const [inputValue, setInputValue] = useState(value)
-    const [errorMessage, setErrorMessage] = useState<string>('')
-    const [inputColor, setInputColor] = useState('')
     const [previousValue, setPreviousValue] = useState<string>(value)
+    const [inputColor, setInputColor] = useState('')
+    const [errorMessage, setErrorMessage] = useState<string>('')
 
 
     const handleSetDefaultValue = () => {
@@ -51,10 +58,10 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
             }
         }
 
-        if(errorValidation){
+        if (errorValidation) {
             return errorValidation
         }
-        else{
+        else {
             return null
         }
 
@@ -64,7 +71,7 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
         if (property.pattern && property.patternMessage) {
             const regexValidator = new RegExp(property.pattern)
             console.log(regexValidator)
-            if(!regexValidator.test(value)){
+            if (!regexValidator.test(value)) {
                 return `ERROR: ${property.patternMessage}.`
             }
         }
@@ -72,7 +79,7 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
     };
 
     const validateFormat = (property: StringProperty, value: string): string | null => {
-        if(property.format){
+        if (property.format) {
             console.log(property)
             switch (property.format) {
                 case 'date':
@@ -80,8 +87,8 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
                     // if (!dayjs(value, 'YYYY-MM-DD').isValid()) {
                     //     return "Date value must be in the format YYYY-MM-DD";
                     // }
-                    const date_regex = /((?:19|20)[0-9][0-9])-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$/;
-                    if(!date_regex.test(value)){
+                    const dateRegex = /((?:19|20)[0-9][0-9])-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$/;
+                    if (!dateRegex.test(value)) {
                         return "Date value must be in the format YYYY-MM-DD";
                     }
                     break;
@@ -91,7 +98,7 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
                     //     return "Time value must be in the format HH:MM:SS";
                     // }
                     const time_regex = /(?:[01]\d|2[0-3]):(?:[0-5]\d):(?:[0-5]\d)/;
-                    if(!time_regex.test(value)){
+                    if (!time_regex.test(value)) {
                         return "Time value must be in the format HH:MM:SS";
                     }
                     break;
@@ -100,56 +107,93 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
                     if (ip_regex.test(value)) {
                         return "The value it must be a valid IP direction";
                     }
-                break;
+                    break;
                 case 'color':
-                    if (!/#[0-9A-F]{6}/i.test(value)) {
+                    // Test for `#906090#906090`
+                    if (!/^#[0-9A-F]{6}$/i.test(value)) {
                         return "mensaje de error";
                     }
-                break;
+                    break;
             }
         }
         return null
     }
-    
+
     const handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void = (e) => {
         setInputValue(e.target.value);
 
         const message = validateMultiple([validateLength, validatePattern, validateFormat], property, e.target.value);
 
-        if(message){
-            setErrorMessage(message)
-            setInputColor('border-red-600')
+        if (message) {
+            setErrorMessage(message);
+        } else {
+            setErrorMessage(null);
         }
-        else{
-            setErrorMessage('')
-            setInputColor('')
-        }
+
     }
 
     const handleBlur: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
         console.log('blur');
-        if(inputValue != previousValue){
-            if(!errorMessage){
+        if (!errorMessage) {
+            if (inputValue !== previousValue) {
                 setPreviousValue(inputValue)
                 onChange(id, inputValue);
             }
         }
     };
 
-    const escapeButtonHandler: (e: React.KeyboardEvent<HTMLInputElement>) => void = (e) => {
-        const keyboardButton = e.which || e.keyCode;
-        if(keyboardButton === 27){
-            setInputColor('');
-            setErrorMessage('');
+    const handleEscKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void = (e) => {
+        if (e.key === 'ESC') {
+            setErrorMessage(null);
             setInputValue(previousValue);
         }
     }
 
     return (
-        <ConfigurationBaseProperty property={property} onSetDefaultValue={handleSetDefaultValue} onCopyToClipboard={handleCopyToClipboard} onError={errorMessage}>
-            <input type="text" className={'rounded-sm p-1 border-2 ' + inputColor} onFocus={() => console.log('focus')} onBlur={handleBlur} onChange={handleChange} value={inputValue} onKeyDown={escapeButtonHandler} />
+        <ConfigurationBaseProperty
+            property={property}
+            onSetDefaultValue={handleSetDefaultValue}
+            onCopyToClipboard={handleCopyToClipboard}
+            onError={errorMessage}
+        >
+            <input type="text"
+                value={inputValue}
+                onFocus={() => console.log('focus')}
+                onKeyDown={handleEscKeyDown}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                className={classnames('rounded-sm p-1 border-2', { 'border-red-500': errorMessage != null })}
+            />
         </ConfigurationBaseProperty>
     );
 
 };
 
+// const { message, values } = validateLength(...);
+
+const validateLength = (property: StringProperty, value: string): any => {
+
+    let error = {};
+
+    if (property.minLength !== undefined && property.maxLength !== undefined) {
+        if (value.length < property?.minLength) {
+            error = { 
+                message: 'property.number.invalidMinLength', 
+                values: { minLength: property?.minLength } 
+            };
+            // message = 'El valor debe ser por lo menos de {minLength} caracteres.';
+            // message = 'The value must be at least {minLength} characters long.';
+            // message = `ERROR: The value must be at least ${property?.minLength} characters long`
+        }
+        else if (value.length > property?.maxLength) {
+            error = { 
+                message: 'property.number.invalidMaxLength', 
+                values: { minLength: property?.maxLength } 
+            };
+            // message = `ERROR: The value must have a maximum of ${property?.maxLength} characters.`
+        }
+    }
+
+    return error;
+
+};
