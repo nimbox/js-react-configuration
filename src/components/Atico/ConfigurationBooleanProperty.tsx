@@ -3,7 +3,7 @@ import { BooleanProperty } from '../../types/properties';
 import { ConfigurationBaseProperty, ConfigurationBasePropertyProps } from '../ConfigurationBaseProperty';
 
 
-export interface ConfigurationBooleanPropertyProps extends Omit<ConfigurationBasePropertyProps, "onSetDefaultValue"|"onCopyToClipboard"> {
+export interface ConfigurationBooleanPropertyProps extends Omit<ConfigurationBasePropertyProps, "onSetDefaultValue"|"onCopyToClipboard"|"onError"> {
 
     property: BooleanProperty;
     value: boolean;
@@ -42,7 +42,7 @@ export const ConfigurationBooleanProperty: FC<ConfigurationBooleanPropertyProps>
 
 
     return (
-        <ConfigurationBaseProperty property={property} onSetDefaultValue={handleSetDefaultValue} onCopyToClipboard={handleCopyToClipboard}>
+        <ConfigurationBaseProperty property={property} onSetDefaultValue={handleSetDefaultValue} onCopyToClipboard={handleCopyToClipboard} onError=''>
             <input type="checkbox" checked={inputValue} onFocus={() => console.log('focus')} onBlur={handleBlur} onChange={handleChange} className='rounded-sm p-1 h-5 w-5' />
         </ConfigurationBaseProperty>
     );

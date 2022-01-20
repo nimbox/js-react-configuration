@@ -1,6 +1,8 @@
-import { FC, FocusEvent, useState } from 'react';
+import {  FC, FocusEvent, useState } from 'react';
 import { NumberProperty } from '../../types/properties';
+import { validateMultiple } from '../../utils/validateMultiple';
 import { ConfigurationBaseProperty, ConfigurationBasePropertyProps } from '../ConfigurationBaseProperty';
+
 
 
 export interface ConfigurationNumberPropertyProps extends Omit<ConfigurationBasePropertyProps, "onSetDefaultValue"|"onCopyToClipboard"|"onError"> { 
@@ -15,11 +17,14 @@ export interface ConfigurationNumberPropertyProps extends Omit<ConfigurationBase
 export const ConfigurationNumberProperty: FC<ConfigurationNumberPropertyProps> = ({ id, value, property, onChange }) => {
 
     const [inputValue, setInputValue] = useState(value);
-    const [error, setError] = useState<string>('')
+    const [errorMessage, setErrorMessage] = useState<string>('')
     const [inputColor, setInputColor] = useState('')
+    const [previousValue, setPreviousValue] = useState<number>(value)
+
 
     const handleSetDefaultValue = ()=>{
-        setInputColor('')
+        setInputColor('');
+        setErrorMessage('');
         setInputValue(property.defaultValue);
         onChange(id, property.defaultValue)
     }
@@ -32,43 +37,66 @@ export const ConfigurationNumberProperty: FC<ConfigurationNumberPropertyProps> =
         });
     }
 
-    const handleBlur: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
-        console.log('blur');
-        if(property.min!== undefined && property.max!== undefined){
-            if (inputValue >= property?.min && inputValue <= property?.max) {
-                setInputValue(Number(e.target.value))
-                setInputColor('')
-                // If the user changed the value of the id, call onChange
-                if(Number(e.target.value) !==  Number(value)){
-                    onChange(id, inputValue);
-                }
+    const validateLength = (property: NumberProperty, value: number): string | null => {
+        let errorValidation: string = '';
+        if (property.min !== undefined && property.max !== undefined) {
+            if (value < property?.min) {
+                setErrorMessage(`ERROR: The value must be at least ${property?.min}.`)
+                errorValidation = `ERROR: The value must be at least ${property?.min}.`
             }
-            else {
-                setError(`ERROR: The value must be a number between ${property.min} and ${property.max}.`)
-                setTimeout(()=>setError(''), 5000)
-                setInputColor('border-red-600')
-                setInputValue(Number(e.target.value))
-                // setInputValue(value)
+            else if (value > property?.max) {
+                setErrorMessage(`ERROR: The value must have a maximum of ${property?.max}.`)
+                errorValidation = `ERROR: The value must have a maximum of ${property?.max}.`
             }
         }
+
+        if(errorValidation){
+            return errorValidation
+        }
         else{
-            setInputValue(Number(e.target.value))
-            if(Number(e.target.value) !==  value){
+            return null
+        }
+
+    };
+
+    
+    const handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void = (e) => {
+        setInputValue(Number(e.target.value));
+        
+        const message = validateMultiple([validateLength], property, e.target.value);
+        
+        if(message){
+            setErrorMessage(message)
+            setInputColor('border-red-600')
+        }
+        else{
+            setErrorMessage('')
+            setInputColor('')
+        }
+    }
+
+    const handleBlur: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
+        console.log('blur');
+        if(inputValue != previousValue){
+            if(!errorMessage){
+                setPreviousValue(inputValue)
                 onChange(id, inputValue);
             }
         }
     };
-
-    const handleChange: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
-        if(Number(e) === property.defaultValue){
-            return setInputValue(Number(e))
+    
+    const escapeButtonHandler: (e: React.KeyboardEvent<HTMLInputElement>) => void = (e) => {
+        const keyboardButton = e.which || e.keyCode;
+        if(keyboardButton === 27){
+            setInputColor('');
+            setErrorMessage('');
+            setInputValue(previousValue);
         }
-        setInputValue(Number(e.target.value));
     }
 
     return (
-        <ConfigurationBaseProperty property={property} onSetDefaultValue={handleSetDefaultValue} onCopyToClipboard={handleCopyToClipboard} onError={error}>
-            <input type="number" className={'rounded-sm p-1 border-2 '+inputColor} onFocus={() => console.log('focus')} onBlur={handleBlur} onChange={handleChange} value={inputValue} min={property.min} max={property.max} />
+        <ConfigurationBaseProperty property={property} onSetDefaultValue={handleSetDefaultValue} onCopyToClipboard={handleCopyToClipboard} onError={errorMessage}>
+            <input type="number" className={'rounded-sm p-1 border-2 '+inputColor} onFocus={() => console.log('focus')} onBlur={handleBlur} onChange={handleChange} value={inputValue} min={property.min} max={property.max}  onKeyDown={escapeButtonHandler}/>
         </ConfigurationBaseProperty>
     );
 

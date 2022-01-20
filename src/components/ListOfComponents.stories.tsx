@@ -35,7 +35,8 @@ export const Default: ComponentStory<typeof ConfigurationListOfComponents> = () 
                     "defaultValue": "1",
                     "type": "string",
                     "title": "Second String Field Title",
-                    "description": "Description of a **boolean** field, click <FONT COLOR=\"blue\">[here](https://www.google.com)</FONT> and go to Google"
+                    "format": "date",
+                    "description": "Date value must be in the format YYYY-MM-DD. Description of a **boolean** field, click <FONT COLOR=\"blue\">[here](https://www.google.com)</FONT> and go to Google"
                 }, 
                 "br.underDueClasses": {
                     "defaultValue": "2",
@@ -43,7 +44,7 @@ export const Default: ComponentStory<typeof ConfigurationListOfComponents> = () 
                     "pattern": "[a-zA-Z0-9]{4,10}",
                     "patternMessage": "Must be an identifier with 4 to 10 characters long",
                     "title": "Third string Field Title",
-                    "description": "Description of a **number** field, click <FONT COLOR=\"blue\">[here](https://www.google.com)</FONT> and go to Google"
+                    "description": "Testing pattern, Must be an identifier with 4 to 10 characters long. Description of a **number** field, click <FONT COLOR=\"blue\">[here](https://www.google.com)</FONT> and go to Google"
                 }
             },
         }

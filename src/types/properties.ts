@@ -11,6 +11,9 @@ export interface BaseProperty<T> {
 export interface StringProperty extends BaseProperty<string> {
     minLength?: number;
     maxLength?: number;
+    pattern?: string;
+    patternMessage?: string;
+    format?: string;
 }
 
 export interface NumberProperty extends BaseProperty<number> {
