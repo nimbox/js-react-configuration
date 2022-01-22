@@ -1,4 +1,5 @@
-import '../src/App.css'
+import '../src/App.css';
+import {i18n} from './i18next.js';
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
@@ -8,4 +9,13 @@ export const parameters = {
       date: /Date$/,
     },
   },
+  i18n,
+  locale: 'en',
+  locales: {
+    en: 'English',
+    es: 'Español'
+  }
 }
+
+
+

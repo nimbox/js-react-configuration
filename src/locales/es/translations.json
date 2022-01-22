@@ -1,3 +1,13 @@
 {
-    "property.string.invalidMin": "El valor debe ser por lo menos de {minLength} caracteres."
+    "property.string.invalidMinLength": "El valor debe ser por lo menos de {{t}} caracteres.",
+    "property.string.invalidMaxLength": "El valor debe de tener un maximo de {{t}} caracteres",
+    "property.string.invalidPattern": "{{patternMessage}}",
+    "property.string.invalidFormatDate": "El valor \"{{t}}\" debe ser una fecha valida.",
+    "property.string.invalidFormatTime": "El valor \"{{t}}\" debe ser una hora valida.",
+    "property.string.invalidFormatUri": "El valor \"{{t}}\" debe ser una URI valida.",
+    "property.string.invalidFormatIp": "El valor \"{{t}}\" debe ser una dirección IP valida.",
+    "property.string.invalidFormatColor": "El valor \"{{t}}\" debe ser un color valido.",
+    "property.string.invalidFormatEmail": "El valor \"{{t}}\" debe ser una dirección de email valida.",
+    "property.number.invalidMin": "El valor debe de ser mayor o igual a {{t}}",
+    "property.number.invalidMax": "El valor debe de ser menor o igual a {{t}}"
 }

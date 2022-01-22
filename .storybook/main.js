@@ -7,7 +7,8 @@ module.exports = {
   "addons": [
     "@storybook/addon-links",
     "@storybook/addon-essentials",
-    "@storybook/preset-create-react-app"
+    "@storybook/preset-create-react-app",
+    'storybook-react-i18next'
   ],
   webpackFinal: async (config) => {
     config.module.rules.push({

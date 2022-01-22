@@ -8,7 +8,7 @@ export interface ConfigurationBasePropertyProps {
     property: BaseProperty<any>;
     onSetDefaultValue: Function;
     onCopyToClipboard: Function;
-    onError: string;
+    onError: string|null;
 
 }
 

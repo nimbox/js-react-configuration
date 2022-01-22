@@ -2,36 +2,36 @@ import { FC, FocusEvent, useState } from 'react';
 import { StringProperty } from '../types/properties';
 import { validateMultiple } from '../utils/validateMultiple';
 import { ConfigurationBaseProperty, ConfigurationBasePropertyProps } from './ConfigurationBaseProperty';
-import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import classnames from 'classnames';
 import { useTranslation } from 'react-i18next';
+import {objectError} from '../utils/validateMultiple'
+import dayjs from 'dayjs';
+dayjs.extend(customParseFormat);
 
 export interface ConfigurationStringPropertyProps extends Omit<ConfigurationBasePropertyProps, "onSetDefaultValue" | "onCopyToClipboard" | "onError"> {
-
+    
     id: string;
     value: string;
-
+    
     property: StringProperty;
-
+    
     onChange: (Key: string, value: any) => void;
-
+    
 }
 
 
+
+
 export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> = ({ id, value, property, onChange }) => {
-
-    // Check el namespace
-    const { t } = useTranslation('');
-    t('property.number.invalidMinLength', { minLength: 18 });
-
-    const [inputValue, setInputValue] = useState(value)
-    const [previousValue, setPreviousValue] = useState<string>(value)
-    const [inputColor, setInputColor] = useState('')
-    const [errorMessage, setErrorMessage] = useState<string>('')
-
+    const { t } = useTranslation("common");
+    
+    const [inputValue, setInputValue] = useState(value);
+    const [previousValue, setPreviousValue] = useState<string>(value);
+    const [errorMessage, setErrorMessage] = useState<string|null>('');
+    
 
     const handleSetDefaultValue = () => {
-        setInputColor('');
         setErrorMessage('');
         setInputValue(property.defaultValue);
         onChange(id, property.defaultValue);
@@ -45,88 +45,16 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
         });
     }
 
-    const validateLength = (property: StringProperty, value: string): string | null => {
-        let errorValidation: string = '';
-        if (property.minLength !== undefined && property.maxLength !== undefined) {
-            if (value.length < property?.minLength) {
-                setErrorMessage(`ERROR: The value must be at least ${property?.minLength} characters long`)
-                errorValidation = `ERROR: The value must be at least ${property?.minLength} characters long`
-            }
-            else if (value.length > property?.maxLength) {
-                setErrorMessage(`ERROR: The value must have a maximum of ${property?.maxLength} characters.`)
-                errorValidation = `ERROR: The value must have a maximum of ${property?.maxLength} characters.`
-            }
-        }
-
-        if (errorValidation) {
-            return errorValidation
-        }
-        else {
-            return null
-        }
-
-    };
-
-    const validatePattern = (property: StringProperty, value: string): string | null => {
-        if (property.pattern && property.patternMessage) {
-            const regexValidator = new RegExp(property.pattern)
-            console.log(regexValidator)
-            if (!regexValidator.test(value)) {
-                return `ERROR: ${property.patternMessage}.`
-            }
-        }
-        return null;
-    };
-
-    const validateFormat = (property: StringProperty, value: string): string | null => {
-        if (property.format) {
-            console.log(property)
-            switch (property.format) {
-                case 'date':
-                    // Check Dayjs, bad result
-                    // if (!dayjs(value, 'YYYY-MM-DD').isValid()) {
-                    //     return "Date value must be in the format YYYY-MM-DD";
-                    // }
-                    const dateRegex = /((?:19|20)[0-9][0-9])-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$/;
-                    if (!dateRegex.test(value)) {
-                        return "Date value must be in the format YYYY-MM-DD";
-                    }
-                    break;
-                case 'time':
-                    // Check Dayjs, bad result
-                    // if (!dayjs(value, 'HH:mm:ss').isValid()) {
-                    //     return "Time value must be in the format HH:MM:SS";
-                    // }
-                    const time_regex = /(?:[01]\d|2[0-3]):(?:[0-5]\d):(?:[0-5]\d)/;
-                    if (!time_regex.test(value)) {
-                        return "Time value must be in the format HH:MM:SS";
-                    }
-                    break;
-                case 'ip':
-                    const ip_regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
-                    if (ip_regex.test(value)) {
-                        return "The value it must be a valid IP direction";
-                    }
-                    break;
-                case 'color':
-                    // Test for `#906090#906090`
-                    if (!/^#[0-9A-F]{6}$/i.test(value)) {
-                        return "mensaje de error";
-                    }
-                    break;
-            }
-        }
-        return null
-    }
-
     const handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void = (e) => {
         setInputValue(e.target.value);
 
-        const message = validateMultiple([validateLength, validatePattern, validateFormat], property, e.target.value);
+        const objectError: objectError|null = validateMultiple([validateLength, validatePattern, validateFormat], property, e.target.value);
 
-        if (message) {
-            setErrorMessage(message);
-        } else {
+        if(objectError) {
+            let {message, values} = objectError;
+            let translatedMessage = t(message, { t: String(Object.values(values)) })
+            setErrorMessage('ERROR: '+translatedMessage);
+        } else{
             setErrorMessage(null);
         }
 
@@ -136,14 +64,14 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
         console.log('blur');
         if (!errorMessage) {
             if (inputValue !== previousValue) {
-                setPreviousValue(inputValue)
+                setPreviousValue(inputValue);
                 onChange(id, inputValue);
             }
         }
     };
 
     const handleEscKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void = (e) => {
-        if (e.key === 'ESC') {
+        if (e.key === 'Escape') {
             setErrorMessage(null);
             setInputValue(previousValue);
         }
@@ -162,38 +90,118 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
                 onKeyDown={handleEscKeyDown}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                className={classnames('rounded-sm p-1 border-2', { 'border-red-500': errorMessage != null })}
+                className={classnames('rounded-sm p-1 border-2', { 'border-red-500': errorMessage })}
             />
         </ConfigurationBaseProperty>
     );
 
 };
 
-// const { message, values } = validateLength(...);
 
-const validateLength = (property: StringProperty, value: string): any => {
+const validateLength = (property: StringProperty, value: string): objectError|null => {
 
-    let error = {};
+    let errorObject:  objectError|null = null;
 
-    if (property.minLength !== undefined && property.maxLength !== undefined) {
-        if (value.length < property?.minLength) {
-            error = { 
-                message: 'property.number.invalidMinLength', 
+    if (property.minLength) {
+        if (value.length < property.minLength) {
+            errorObject = { 
+                message: 'property.string.invalidMinLength', 
                 values: { minLength: property?.minLength } 
             };
-            // message = 'El valor debe ser por lo menos de {minLength} caracteres.';
-            // message = 'The value must be at least {minLength} characters long.';
-            // message = `ERROR: The value must be at least ${property?.minLength} characters long`
         }
-        else if (value.length > property?.maxLength) {
-            error = { 
-                message: 'property.number.invalidMaxLength', 
-                values: { minLength: property?.maxLength } 
+    }
+    if(property.maxLength){
+        if (value.length > property.maxLength) {
+            errorObject = { 
+                message: 'property.string.invalidMaxLength', 
+                values: { maxLength: property?.maxLength } 
             };
-            // message = `ERROR: The value must have a maximum of ${property?.maxLength} characters.`
         }
     }
 
-    return error;
+    return errorObject;
 
 };
+
+const validatePattern = (property: StringProperty, value: string): objectError|null => {
+    let errorObject:  objectError|null = null;
+    if (property.pattern) {
+        const regexPattern = new RegExp(property.pattern);
+        if (!regexPattern.test(value)) {
+            if(property.patternMessage){
+                return errorObject = {
+                    message: 'property.string.invalidPattern',
+                    values: { patternMessage: property.patternMessage }
+                }
+            } else{
+                return errorObject = {
+                    message: 'property.string.invalidPattern',
+                    values: {patternMessage: 'value does not match the pattern' }
+                }
+            }
+        }
+    }
+    return null;
+};
+
+const validateFormat = (property: StringProperty, value: string): objectError|null => {
+    let errorObject:  objectError|null = null;
+    if (property.format) {
+        switch (property.format) {
+            case 'date':
+                if (!dayjs(value, "YYYY-MM-DD", true).isValid()) {
+                    return errorObject = {
+                        message: 'property.string.invalidFormatDate',
+                        values: { inputValue: value }
+                    }
+                }
+                break;
+            case 'time':
+                if (!dayjs(value, 'HH:mm:ss', true).isValid()) {
+                    return errorObject = {
+                        message: 'property.string.invalidFormatTime',
+                        values: { inputValue: value }
+                    }
+                }
+                break;
+            case 'uri':
+                const uriRegex = /^https?:\/\/[\w\-]+(\.[\w\-]+)+[/#?]?.*$/;
+                if(!uriRegex.test(value)) {
+                    return errorObject = {
+                        message: 'property.string.invalidFormatUri',
+                        values: { inputValue: value }
+                    }
+                }
+                break;
+            case 'ip':
+                const ipRegex = /^\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b/;
+                if (!ipRegex.test(value)) {
+                    return errorObject = {
+                        message: 'property.string.invalidFormatIp',
+                        values: { inputValue: value }
+                    }
+                }
+                break;
+            case 'color':
+                const colorRegex = /^#[0-9A-F]{6}$/i;
+                if (!colorRegex.test(value)) {
+                    return errorObject = {
+                        message: 'property.string.invalidFormatColor',
+                        values: { inputValue: value }
+                    }
+                }
+                break;
+            case 'email':
+                const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+                if (!emailRegex.test(value)) {
+                    return errorObject = {
+                        message: 'property.string.invalidFormatEmail',
+                        values: { inputValue: value }
+                    }
+                }
+                break;
+        }
+    }
+    return null
+}
+
