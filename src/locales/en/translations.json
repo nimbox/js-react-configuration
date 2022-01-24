@@ -1,6 +1,6 @@
 {
-    "property.string.invalidMinLength": "The value must have at least {{ t }} characters long.",
-    "property.string.invalidMaxLength": "The value must have a maximun of {{ t }} characters long.",
+    "property.string.invalidMinLength": "The value must have at least {{value}} characters long.",
+    "property.string.invalidMaxLength": "The value must have a maximun of {{value}} characters long.",
     "property.string.invalidPattern": "{{ t }}.",
     "property.string.invalidFormatDate": "The value \"{{ t }}\" must be a valid date value.",
     "property.string.invalidFormatTime": "The value \"{{ t }}\" must be a valid time value.",

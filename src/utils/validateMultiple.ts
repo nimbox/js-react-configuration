@@ -1,10 +1,11 @@
 
-export interface objectError{
+export interface ValidationError {
     message: string,
     values: object
 }
 
-export const validateMultiple = (validates: any[], property: any, value: string): objectError | null => {
+export const validateMultiple = (validates: any[], property: any, value: string): ValidationError | null => {
+    
     for (const validate of validates) {
         // const error = validate(property, value);
         const messageError = validate(property, value);
@@ -12,5 +13,7 @@ export const validateMultiple = (validates: any[], property: any, value: string)
             return messageError;
         }
     }
+
     return null;
+
 };
