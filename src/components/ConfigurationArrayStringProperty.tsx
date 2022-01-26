@@ -1,5 +1,5 @@
-import { FC, FocusEvent, useState } from 'react';
-import { StringProperty, ValidationError } from '../types/properties';
+import { FC, FocusEvent, useEffect, useState } from 'react';
+import { ArrayStringProperty, StringProperty, ValidationError } from '../types/properties';
 import { validateMultiple } from '../utils/validateMultiple';
 import { ConfigurationBaseProperty, ConfigurationBasePropertyProps } from './ConfigurationBaseProperty';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -8,12 +8,12 @@ import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 dayjs.extend(customParseFormat);
 
-export interface ConfigurationStringPropertyProps extends Omit<ConfigurationBasePropertyProps, "onSetDefaultValue" | "onCopyToClipboard" | "onError"> {
+export interface ConfigurationArrayStringPropertyProps extends Omit<ConfigurationBasePropertyProps, "onSetDefaultValue" | "onCopyToClipboard" | "onError"> {
 
     id: string;
-    value: string;
+    value: string[];
 
-    property: StringProperty;
+    property: ArrayStringProperty;
 
     onChange: (Key: string, value: any) => void;
 
@@ -22,17 +22,18 @@ export interface ConfigurationStringPropertyProps extends Omit<ConfigurationBase
 
 
 
-export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> = ({ id, value, property, onChange }) => {
+export const ConfigurationArrayStringProperty: FC<ConfigurationArrayStringPropertyProps> = ({ id, value, property, onChange }) => {
     const { t } = useTranslation("common");
 
     const [inputValue, setInputValue] = useState(value);
+    const [arrayItems, setArrayItems] = useState<Array<any>>(value);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [previousValue, setPreviousValue] = useState<string>(value);
 
 
     const handleSetDefaultValue = () => {
         setErrorMessage(null);
-        setInputValue(String(property.defaultValue));
+        setArrayItems(property.defaultValue);
         onChange(id, property.defaultValue);
     }
 
@@ -68,7 +69,6 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
         if (!error) {
             if (inputValue !== previousValue) {
                 setPreviousValue(inputValue);
-                // inputValue === '' ? null : inputValue;
                 onChange(id, inputValue);
             }
         }
@@ -82,22 +82,49 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
         }
     }
 
+    const editItem =(key:number)=>{
+        console.log('editItem');
+    }
+
+    const deleteItem = (key: number)=>{
+        arrayItems.splice(key,1);
+        onChange(id, [...arrayItems]);
+        return setArrayItems([...arrayItems]);
+    }
+        
     return (
         <ConfigurationBaseProperty
-            property={property}
-            onSetDefaultValue={handleSetDefaultValue}
-            onCopyToClipboard={handleCopyToClipboard}
-            onError={errorMessage}
-        >
-            <input type="text"
-                value={inputValue}
+        property={property}
+        onSetDefaultValue={handleSetDefaultValue}
+        onCopyToClipboard={handleCopyToClipboard}
+        onError={errorMessage}>
+        <div className="flex-row">
+            { arrayItems.map((item,key) => {
+                return(<div className="flex flex-row">
+                <input type="text"
+                key={key}
+                value={item}
                 onFocus={() => console.log('focus')}
                 onKeyDown={handleEscKeyDown}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 className={classnames('p-1 rounded-sm border-2', { 'border-red-500': errorMessage })}
-            />
-        </ConfigurationBaseProperty>
+                disabled
+                />
+                <div onClick={()=>editItem(key)} className="m-1 p-1 flex flex-center rounded-sm align-middle bg-transparent hover:bg-gray-400 cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                </div>
+                <div onClick={()=>deleteItem(key)}  className="m-1 p-0.5 flex flex-center rounded-sm align-middle bg-transparent hover:bg-gray-400 cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+            </div>)
+            }) }
+        </div>
+    </ConfigurationBaseProperty>
     );
 
 };

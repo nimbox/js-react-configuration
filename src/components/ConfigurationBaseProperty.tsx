@@ -18,7 +18,6 @@ export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ 
     const [showDropdown, setShowDropdown] = useState(false);
     
     const handleSetDefaultValue = () => {
-        console.log('default value')
         setShowDropdown(false);
         onSetDefaultValue();
     }
@@ -49,7 +48,7 @@ export const ConfigurationBaseProperty: FC<ConfigurationBasePropertyProps> = ({ 
                 </div>
 
                 <div className='p-1.5'>
-                    <button onClick={() => { setShowDropdown(!showDropdown) }} type="button" className="inline-flex justify-center rounded-md border border-gray-300 shadow-sm h-full w-full m-0 px-1 py-1 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500" id="menu-button" aria-expanded="true" aria-haspopup="true">
+                    <button onClick={() => { setShowDropdown(!showDropdown) }} type="button" className="inline-flex justify-center rounded-md border border-gray-300 shadow-sm w-full m-0 px-1 py-1 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500" id="menu-button" aria-expanded="true" aria-haspopup="true">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 hover:text-blue-600 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>

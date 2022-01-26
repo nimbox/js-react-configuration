@@ -16,7 +16,7 @@ export const Default: ComponentStory<typeof ConfigurationStringProperty> = () =>
 
     const property: StringProperty = {
         defaultValue: 'None',
-        type: 'string',
+        type: 'string|null',
         title: 'String Field Title',
         minLength: 4,
         maxLength: 10,

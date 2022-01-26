@@ -16,7 +16,7 @@
 // { type: 'number[]|null', min: 0, max: 120, minArrayLength: 3, maxArrayLength: 3, defaultValue: [0, 30, 90] }
 // value: null | [20,20,20] | NO[20] | NO[20,20,20,20,20,20] 
 
-export type PropertyType = "string" | "number" | "boolean";
+export type PropertyType = "string" | "number" | "boolean" | "enum" | "string|null" | 'string[]';
 
 
 export interface BaseProperty<T> {
@@ -34,6 +34,12 @@ export interface StringProperty extends BaseProperty<string> {
     format?: string;
 }
 
+export interface ArrayStringProperty extends BaseProperty<string[]>{
+    minArrayLength?: number;
+    maxArrayLength?: number;
+}
+
+
 export interface NumberProperty extends BaseProperty<number> {
     min?: number;
     max?: number;
@@ -43,8 +49,12 @@ export interface BooleanProperty extends BaseProperty<boolean> {
 
 }
 
-// export interface ListProperty {
-//     StringProperty: StringProperty;
-//     NumberProperty: NumberProperty;
-//     BooleanProperty: BooleanProperty;
-// }
+export interface EnumProperty extends BaseProperty<string> {
+    options: Array<string>;
+    optionsDescriptions: Array<string>;
+}
+
+export interface ValidationError {
+    message: string,
+    values: object
+}

@@ -35,7 +35,7 @@ export const Default: ComponentStory<typeof ConfigurationListOfComponents> = () 
                     "defaultValue": "1",
                     "type": "string",
                     "title": "Second String Field Title",
-                    "format": "date",
+                    "format": "datetime",
                     "description": "Date value must be in the format YYYY-MM-DD. Description of a **boolean** field, click <FONT COLOR=\"blue\">[here](https://www.google.com)</FONT> and go to Google"
                 }, 
                 "br.underDueClasses": {
@@ -57,7 +57,7 @@ export const Default: ComponentStory<typeof ConfigurationListOfComponents> = () 
             "ar.overDueClasses": true,
             "ar.underDueClasses": 15,
             "br.dueOffset": "Another",
-            "br.overDueClasses": false,
+            "br.overDueClasses": "false",
             "br.underDueClasses": 18,
 
     });
