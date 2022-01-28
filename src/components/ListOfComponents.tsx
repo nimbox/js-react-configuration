@@ -20,7 +20,7 @@ export const ConfigurationListOfComponents: FC<ConfigurationListOfComponents> = 
 
     // Render depending on type
     const getPropertyEditor = (property: any, value: any, key: string, onChange: (key: string, value: any) => void) => {
-        if (property.type === 'string') {
+        if (property.type === 'string' || property.type==='string[]') {
             body.push(
                 <ConfigurationStringProperty property={property} id={key} value={value} onChange={onChange} />
             )

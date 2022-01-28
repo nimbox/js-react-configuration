@@ -45,6 +45,16 @@ export const Default: ComponentStory<typeof ConfigurationListOfComponents> = () 
                     "patternMessage": "Must be an identifier with 4 to 10 characters long",
                     "title": "Third string Field Title",
                     "description": "Testing pattern, Must be an identifier with 4 to 10 characters long. Description of a **number** field, click <FONT COLOR=\"blue\">[here](https://www.google.com)</FONT> and go to Google"
+                },
+                "br.dueOffset": {
+                    "defaultValue": ['None'],
+                    "type": "string[]",
+                    "title": "Array String Field Title",
+                    "minLength": "4",
+                    "maxLength": "8",
+                    "minArrayLength": "2",
+                    "maxArrayLength": "10",
+                    "description": "Description of a **array string** field, click <FONT COLOR=\"blue\">[here](https://www.google.com)</FONT> and go to Google",
                 }
             },
         }
@@ -56,7 +66,7 @@ export const Default: ComponentStory<typeof ConfigurationListOfComponents> = () 
             "ar.dueOffset": "Some text",
             "ar.overDueClasses": true,
             "ar.underDueClasses": 15,
-            "br.dueOffset": "Another",
+            "br.dueOffset": ['Item 1', 'Item 2', 'Item 3'],
             "br.overDueClasses": "false",
             "br.underDueClasses": 18,
 

@@ -35,6 +35,8 @@ export interface StringProperty extends BaseProperty<string> {
 }
 
 export interface ArrayStringProperty extends BaseProperty<string[]>{
+    minLength?: number;
+    maxLength?: number;
     minArrayLength?: number;
     maxArrayLength?: number;
 }
