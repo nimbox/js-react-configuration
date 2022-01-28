@@ -26,7 +26,8 @@ export interface BaseProperty<T> {
     defaultValue: T;
 }
 
-export interface StringProperty extends BaseProperty<string> {
+export interface StringPropertyOne extends BaseProperty<string> {
+    nullable:boolean;
     minLength?: number;
     maxLength?: number;
     pattern?: string;
@@ -34,11 +35,15 @@ export interface StringProperty extends BaseProperty<string> {
     format?: string;
 }
 
-export interface ArrayStringProperty extends BaseProperty<string[]>{
+export interface StringPropertyArray extends BaseProperty<string[]>{
+    nullable:boolean;
     minLength?: number;
     maxLength?: number;
     minArrayLength?: number;
     maxArrayLength?: number;
+    pattern?: string;
+    patternErrorMessage?: string;
+    format?: string;
 }
 
 

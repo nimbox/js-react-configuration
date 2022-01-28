@@ -152,7 +152,16 @@ export const ConfigurationStringProperty: FC<ConfigurationStringPropertyProps> =
         }
 
     }
-    
+
+    // const nullable = property.type.endsWith('|null');
+    // if (property.type.startsWith('string')) {
+    //     return <ConfigurationStringPropertyOne nullable={nullable}/>
+    // }
+    // if (property.type.startsWith('string[]')) {
+    //     return <ConfigurationStringPropertyArray nullable={nullable}/>
+    // }
+    // return null;
+
     if(property.type === 'string'){
         return (
             <ConfigurationBaseProperty

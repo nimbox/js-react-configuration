@@ -18,9 +18,11 @@ export const ConfigurationListOfComponents: FC<ConfigurationListOfComponents> = 
     
     var body: Array<JSX.Element> = []
 
+
+
     // Render depending on type
     const getPropertyEditor = (property: any, value: any, key: string, onChange: (key: string, value: any) => void) => {
-        if (property.type === 'string' || property.type==='string[]') {
+        if (property.type.startsWith('string')) {
             body.push(
                 <ConfigurationStringProperty property={property} id={key} value={value} onChange={onChange} />
             )
