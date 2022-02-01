@@ -48,12 +48,6 @@ export const ConfigurationEnumProperty: FC<ConfigurationEnumPropertyProps> = ({ 
         }
     };
 
-    const handleEscKeyDown: (e: React.KeyboardEvent<HTMLSelectElement>) => void = (e) => {
-        if (e.key === 'Escape') {
-            setInputValue(previousValue);
-        }
-    }
-
     //Variable used for the handleCopyToClipboard function to know the current description.
     var currentDescription: string|null = null;
         
@@ -67,7 +61,6 @@ export const ConfigurationEnumProperty: FC<ConfigurationEnumPropertyProps> = ({ 
             <select         
                 value={inputValue}
                 onFocus={() => console.log('focus')}
-                onKeyDown={handleEscKeyDown}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 className='form-select appearance-none

@@ -48,7 +48,7 @@ export const Default: ComponentStory<typeof ConfigurationListOfComponents> = () 
                 },
                 "br.dueOffset": {
                     "defaultValue": ['None'],
-                    "type": "string[]",
+                    "type": "string[]|null",
                     "title": "Array String Field Title",
                     "minLength": "4",
                     "maxLength": "8",
