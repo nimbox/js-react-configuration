@@ -39,7 +39,7 @@ const propertyArray: NumberPropertyArray = {
     defaultValue: [15, 20],
     type: 'number[]',
     title: 'Array Number Field Title',
-    min: 5,
+    min: -5,
     max: 20,
     minArrayLength: 2,
     maxArrayLength: 10,

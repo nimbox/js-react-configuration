@@ -21,15 +21,17 @@ export interface ConfigurationNumberPropertyProps extends Omit<ConfigurationBase
 
 export const ConfigurationNumberPropertyArray: FC<ConfigurationNumberPropertyProps> = ({ id, value, property, nullable, onChange }) => {
     const { t } = useTranslation("common");
-    const [inputValueItem, setInputValueItem] = useState<number[]>(value);
+    const initValue: string[] = [];
+    Array(value.length).fill(value.forEach((item)=>initValue.push(String(item))))
+    const [inputValueItem, setInputValueItem] = useState<string[]>(initValue);
     const [disabledList, setDisabledList] = useState<boolean[]>(Array(inputValueItem.length).fill(true));
     const [errorMessage, setErrorMessage] = useState<string|null>(null);
-    const [previousValue, setPreviousValue] = useState<number[]>(value);
+    const [previousValue, setPreviousValue] = useState<string[]>(initValue);
 
 
     const handleSetDefaultValue = () => {
         setErrorMessage(null);
-        setInputValueItem(property.defaultValue);
+        setInputValueItem(Array(value.length).fill(property.defaultValue.map((item: number)=>String(item))));
         onChange(id, property.defaultValue);
     }
 
@@ -44,13 +46,13 @@ export const ConfigurationNumberPropertyArray: FC<ConfigurationNumberPropertyPro
     const validate = (value: number) => validateMultiple([validateMagnitude], property, value);
 
     const handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void = (e) => {
-        let newInputValueItem: any[] = inputValueItem;
+        let newInputValueItem: string[] = inputValueItem;
       
         if(e.target.value === '-'){
             newInputValueItem[Number(e.target.name)] = e.target.value;
             setInputValueItem([...newInputValueItem]);
         } else if(!isNaN(Number(e.target.value))){
-            newInputValueItem[Number(e.target.name)] = Number(e.target.value);
+            newInputValueItem[Number(e.target.name)] = String(e.target.value);
             setInputValueItem([...newInputValueItem]);
         } else{
             return null;
@@ -76,15 +78,15 @@ export const ConfigurationNumberPropertyArray: FC<ConfigurationNumberPropertyPro
             if(nullable && inputValueItem.length === 0) {
                 onChange(id, null);
             } else{
-                let newArrayItems: number[] = [];
+                let newArrayItems: string[] = [];
                 inputValueItem.forEach((item) => {
-                    if(validate(item) === null){
-                        newArrayItems.push(item);
+                    if(validate(Number(item)) === null){
+                        newArrayItems.push(String(item));
                     }
                 })
                 setInputValueItem(newArrayItems);
                 setPreviousValue(newArrayItems);
-                onChange(id, newArrayItems);
+                onChange(id, newArrayItems.map(item => Number(item)));
             }
         }
     };
@@ -120,7 +122,7 @@ export const ConfigurationNumberPropertyArray: FC<ConfigurationNumberPropertyPro
         if(nullable){
             if(property.maxArrayLength){
                 if(inputValueItemDesiredLength < property.maxArrayLength){
-                    inputValueItem.push(0);
+                    inputValueItem.push('');
                     disabledList.push(true);
                     disabledList.fill(true);
                     setDisabledList([...disabledList]);
@@ -130,7 +132,7 @@ export const ConfigurationNumberPropertyArray: FC<ConfigurationNumberPropertyPro
         }
 
         if(!error){
-            inputValueItem.push(0);
+            inputValueItem.push('');
             disabledList.push(true);
             disabledList.fill(true);
             setDisabledList([...disabledList]);
@@ -189,10 +191,10 @@ export const ConfigurationNumberPropertyArray: FC<ConfigurationNumberPropertyPro
             onCopyToClipboard={handleCopyToClipboard}
             onError={errorMessage}>
             <div className="flex-row">
-                { id ? (inputValueItem as number[]).map((item: number, key: number) => {
+                { id ? inputValueItem.map((item: string, key: number) => {
                     return(
                         <div className="flex flex-row" key={key}>
-                            <input type="number"
+                            <input type="text"
                             key={key}
                             name={String(key)}
                             value={inputValueItem[key]}
