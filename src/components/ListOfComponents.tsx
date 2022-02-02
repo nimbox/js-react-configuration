@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import { ConfigurationBooleanProperty } from './Atico/ConfigurationBooleanProperty';
-import { ConfigurationNumberProperty } from './Atico/ConfigurationNumberProperty';
+import { ConfigurationNumberProperty } from './ConfigurationNumberProperty';
+import { ConfigurationEnumProperty } from './ConfigurationEnumProperty';
 import { ConfigurationStringProperty } from './ConfigurationStringProperty';
 
 interface ConfigurationJson{
@@ -27,14 +28,19 @@ export const ConfigurationListOfComponents: FC<ConfigurationListOfComponents> = 
                 <ConfigurationStringProperty property={property} id={key} value={value} onChange={onChange} />
             )
         }
-        else if (property.type === 'number') {
+        else if (property.type.startsWith('number')) {
             body.push(
                 <ConfigurationNumberProperty property={property} id={key} value={value} onChange={onChange} />
             )
         }
-        else if (property.type === 'boolean') {
+        else if (property.type.startsWith('boolean')) {
             body.push(
                 <ConfigurationBooleanProperty property={property} id={key} value={value} onChange={onChange} />
+            )
+        }
+        else if(property.type.startsWith('enum')){
+            body.push(
+                <ConfigurationEnumProperty property={property} id={key} value={value} onChange={onChange} />
             )
         }
     };

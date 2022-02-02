@@ -25,7 +25,18 @@ export const Default: ComponentStory<typeof ConfigurationListOfComponents> = () 
                     "minLength": 4,
                     "maxLength": 10,
                     "description": "Value must be between 4 and characters. Description of a **string** field, click <FONT COLOR=\"blue\">[here](https://www.google.com)</FONT> and go to Google"
-                }
+                },
+                "ar.overDueClasses":{
+                    "defaultValue": [15, 20],
+                    "nullable": true,
+                    "type": "number[]|null",
+                    "title": "Array Number Field Title",
+                    "min": "4",
+                    "max": "25",
+                    "minArrayLength": "2",
+                    "maxArrayLength": "10",
+                    "description": "Description of a **array number** field, click <FONT COLOR=\"blue\">[here](https://www.google.com)</FONT> and go to Google",
+                } 
             },
         },
         {
@@ -64,7 +75,7 @@ export const Default: ComponentStory<typeof ConfigurationListOfComponents> = () 
 
     const [values, setValues] = useState<any>({
             "ar.dueOffset": "Some text",
-            "ar.overDueClasses": true,
+            "ar.overDueClasses": [5, 10, 14],
             "ar.underDueClasses": 15,
             "br.dueOffset": ['Item 1', 'Item 2', 'Item 3'],
             "br.overDueClasses": "false",

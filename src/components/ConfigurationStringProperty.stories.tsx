@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory, configure, Meta, storiesOf, Story } from '@storybook/react';
+import { Meta, Story } from '@storybook/react';
 import { StringPropertyArray, StringPropertyOne } from '../types/properties';
 import { ConfigurationStringProperty } from './ConfigurationStringProperty';
 
@@ -9,19 +9,18 @@ export default {
 } as Meta;
 
 //
-// Stories
+// Stories 
 //
 
 
-// StringOne: 
+// String One: 
 const propertyString: StringPropertyOne = {
     nullable: false,
     defaultValue: 'None',
     type: 'string',
     title: 'String Field Title',
-    // minLength: 4,
-    format: 'date',
-    // maxLength: 12,
+    minLength: 4,
+    maxLength: 12,
     description: 'Description of a **string** field, click <FONT COLOR="blue">[here](https://www.google.com)</FONT> and go to Google'
 };
 const keyString: string = 'keyTest';

@@ -1,15 +1,3 @@
-// const [value, setValue] = useState();
-
-// en el onblur
-// if (nullable) {
-//     if (value.trim().length === 0) {
-//         dispatch(null);
-//     } else {
-//         validate(value);
-//     }
-// } else {
-//     validate(value);
-// }
 import React, { FC, FocusEvent, useState } from 'react';
 import { StringPropertyOne, ValidationError } from '../types/properties';
 import { validateMultiple } from '../utils/validateMultiple';
@@ -43,7 +31,6 @@ export const ConfigurationStringPropertyOne: FC<ConfigurationStringPropertyProps
     
 
     const handleSetDefaultValue = () => {
-        console.log(property.defaultValue)
         setErrorMessage(null);
         setInputValue(String(property.defaultValue));
         onChange(id, property.defaultValue);

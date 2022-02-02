@@ -1,35 +1,31 @@
-import React, { FC, FocusEvent, useState } from 'react';
-import { StringPropertyArray, ValidationError } from '../types/properties';
+import classnames from 'classnames';
+import { FC, FocusEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { NumberPropertyArray, ValidationError } from '../types/properties';
 import { validateMultiple } from '../utils/validateMultiple';
 import { ConfigurationBaseProperty, ConfigurationBasePropertyProps } from './ConfigurationBaseProperty';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
-import classnames from 'classnames';
-import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
-dayjs.extend(customParseFormat);
 
-export interface ConfigurationStringPropertyProps extends Omit<ConfigurationBasePropertyProps, "onSetDefaultValue" | "onCopyToClipboard" | "onError"> {
+
+
+export interface ConfigurationNumberPropertyProps extends Omit<ConfigurationBasePropertyProps, "onSetDefaultValue" | "onCopyToClipboard" | "onError"> {
 
     id: string;
-    value: string[];
-    
-    property: StringPropertyArray;
+    value: number[];
+
+    property: NumberPropertyArray;
     nullable: boolean;
 
     onChange: (Key: string, value: any) => void;
 
 }
 
-
-
-
-export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyProps> = ({ id, value, property, nullable, onChange }) => {
+export const ConfigurationNumberPropertyArray: FC<ConfigurationNumberPropertyProps> = ({ id, value, property, nullable, onChange }) => {
     const { t } = useTranslation("common");
-    const [inputValueItem, setInputValueItem] = useState<string[]>(value);
+    const [inputValueItem, setInputValueItem] = useState<number[]>(value);
     const [disabledList, setDisabledList] = useState<boolean[]>(Array(inputValueItem.length).fill(true));
     const [errorMessage, setErrorMessage] = useState<string|null>(null);
-    const [previousValue, setPreviousValue] = useState<string[]>(value);
-    
+    const [previousValue, setPreviousValue] = useState<number[]>(value);
+
 
     const handleSetDefaultValue = () => {
         setErrorMessage(null);
@@ -45,14 +41,22 @@ export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyPro
         });
     }
 
-    const validate = (value: string) => validateMultiple([validateLength, validatePattern, validateFormat], property, value);
+    const validate = (value: number) => validateMultiple([validateMagnitude], property, value);
 
     const handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void = (e) => {
-        let newInputValueItem: string[] = inputValueItem;
-        newInputValueItem[Number(e.target.name)] = e.target.value;
-        setInputValueItem([...newInputValueItem]);
+        let newInputValueItem: any[] = inputValueItem;
+      
+        if(e.target.value === '-'){
+            newInputValueItem[Number(e.target.name)] = e.target.value;
+            setInputValueItem([...newInputValueItem]);
+        } else if(!isNaN(Number(e.target.value))){
+            newInputValueItem[Number(e.target.name)] = Number(e.target.value);
+            setInputValueItem([...newInputValueItem]);
+        } else{
+            return null;
+        }
 
-        const error = validate(e.target.value);
+        const error = validate(Number(e.target.value));
 
         if (error) {
             const { message, values } = error;
@@ -60,21 +64,19 @@ export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyPro
         } else {
             setErrorMessage(null);
         }
-
-    };
+        
+    }
 
     const handleBlur: (e: FocusEvent<HTMLInputElement>) => void = (e) => {
-
         console.log('blur');
-        
-        const error = validate(e.target.value);
+        const error = validate(Number(e.target.value));
         if (!error) {
             disabledList.fill(true);
             setDisabledList([...disabledList]);
             if(nullable && inputValueItem.length === 0) {
                 onChange(id, null);
             } else{
-                let newArrayItems: string[] = [];
+                let newArrayItems: number[] = [];
                 inputValueItem.forEach((item) => {
                     if(validate(item) === null){
                         newArrayItems.push(item);
@@ -118,7 +120,7 @@ export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyPro
         if(nullable){
             if(property.maxArrayLength){
                 if(inputValueItemDesiredLength < property.maxArrayLength){
-                    inputValueItem.push('');
+                    inputValueItem.push(0);
                     disabledList.push(true);
                     disabledList.fill(true);
                     setDisabledList([...disabledList]);
@@ -128,15 +130,15 @@ export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyPro
         }
 
         if(!error){
-            inputValueItem.push('');
+            inputValueItem.push(0);
             disabledList.push(true);
             disabledList.fill(true);
             setDisabledList([...disabledList]);
-            setInputValueItem([...inputValueItem]);
+            return setInputValueItem([...inputValueItem]);
         } else{
             const { message, values } = error;
             setErrorMessage(t(message, values));
-            setTimeout(()=>setErrorMessage(null), 3000);
+            return setTimeout(()=>setErrorMessage(null), 3000);
         }
 
     }
@@ -187,10 +189,10 @@ export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyPro
             onCopyToClipboard={handleCopyToClipboard}
             onError={errorMessage}>
             <div className="flex-row">
-                { id ? (inputValueItem as string[]).map((item: string, key: number) => {
+                { id ? (inputValueItem as number[]).map((item: number, key: number) => {
                     return(
                         <div className="flex flex-row" key={key}>
-                            <input type="text"
+                            <input type="number"
                             key={key}
                             name={String(key)}
                             value={inputValueItem[key]}
@@ -219,42 +221,42 @@ export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyPro
             </button>
             </div>
         </ConfigurationBaseProperty>
-    )
+    );
+
 };
 
-
-const validateLength = (property: StringPropertyArray, value: string): ValidationError | null => {
-    if(property.minLength && property.maxLength){
-        if(property.maxLength === property.minLength){
-            const definedLength = property.maxLength;
-            if(value.length !== definedLength){
+const validateMagnitude = (property: NumberPropertyArray, value: number): ValidationError | null => {
+    if(property.min && property.max){
+        if(property.max === property.min){
+            const definedMagnitude = property.max;
+            if(value !== definedMagnitude){
                 return { 
-                    message: 'property.string.invalidLength',
-                    values: { value, minLength: property.minLength, maxLength: property.maxLength }
+                    message: 'property.number.invalidMagnitud',
+                    values: { value, magnitude: definedMagnitude}
                 }
             }
         } 
-        else if(value.length < property.minLength || value.length > property.maxLength) {
+        else if(value < property.min || value > property.max) {
             return {
-                message: 'property.string.invalidMinMaxLength',
-                values: { value, minLength: property.minLength, maxLength: property.maxLength }
+                message: 'property.number.invalidMinMax',
+                values: { value, min: property.min, max: property.max }
             }
         }
     }
 
-    if (property.minLength) {
-        if (value.length < property.minLength) {
+    if (property.min) {
+        if (value < property.min) {
             return {
-                message: 'property.string.invalidMinLength',
-                values: { value, minLength: property.minLength }
+                message: 'property.number.invalidMin',
+                values: { value, min: property.min }
             };
         }
     }
-    if (property.maxLength) {
-        if (value.length > property.maxLength) {
+    if (property.max) {
+        if (value > property.max) {
             return {
-                message: 'property.string.invalidMaxLength',
-                values: { value, maxLength: property.maxLength }
+                message: 'property.number.invalidMax',
+                values: { value, max: property.max }
             };
         }
     }
@@ -263,117 +265,21 @@ const validateLength = (property: StringPropertyArray, value: string): Validatio
 
 };
 
-const validatePattern = (property: StringPropertyArray, value: string): ValidationError | null => {
-
-    if (property.pattern) {
-        const regexPattern = new RegExp(property.pattern);
-        if (!regexPattern.test(value)) {
-            if (property.patternErrorMessage) {
-                return {
-                    message: property.patternErrorMessage,
-                    values: { value }
-                }
-            } else {
-                return {
-                    message: 'property.string.invalidPattern',
-                    values: { value }
-                }
-            }
-        }
-    }
-
-    return null;
-
-};
-
-const validateFormat = (property: StringPropertyArray, value: string): ValidationError | null => {
-
-    if (property.format) {
-
-        switch (property.format) {
-            case 'date':
-                if (!dayjs(value, 'YYYY-MM-DD', true).isValid()) {
-                    return {
-                        message: 'property.string.invalidFormatDate',
-                        values: { value }
-                    }
-                }
-                break;
-            case 'time':
-                if (!dayjs(value, 'HH:mm:ss', true).isValid()) {
-                    return {
-                        message: 'property.string.invalidFormatTime',
-                        values: { value }
-                    }
-                }
-                break;
-            case 'datetime':
-                if(!dayjs(value, 'MM/DD/YY H:mm:ss A Z', true).isValid()) {
-                    return {
-                        message: 'property.string.invalidFormatDatetime',
-                        values: { value }
-                    }
-                }
-                break;
-            case 'uri':
-                const uriRegex = /^https?:\/\/[\w\-]+(\.[\w\-]+)+[/#?]?.*$/;
-                if (!uriRegex.test(value)) {
-                    return {
-                        message: 'property.string.invalidFormatUri',
-                        values: { value }
-                    }
-                }
-                break;
-            case 'ip':
-                const ipRegex = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}$/;
-                if (!ipRegex.test(value)) {
-                    return {
-                        message: 'property.string.invalidFormatIp',
-                        values: { value }
-                    }
-                }
-                break;
-            case 'color':
-                const colorRegex = /^#[0-9A-F]{6}$/i;
-                if (!colorRegex.test(value)) {
-                    return {
-                        message: 'property.string.invalidFormatColor',
-                        values: { value }
-                    }
-                }
-                break;
-            case 'email':
-                const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-                if (!emailRegex.test(value)) {
-                    return {
-                        message: 'property.string.invalidFormatEmail',
-                        values: { value }
-                    }
-                }
-                break;
-        }
-
-    }
-
-    return null;
-
-}
-
-const validateArrayLength = (property: StringPropertyArray, arrayItemsLength: number): ValidationError | null => {
+const validateArrayLength = (property: NumberPropertyArray, arrayItemsLength: number): ValidationError | null => {
     // To know if the user's desired length is valid.
     if(property.minArrayLength && property.maxArrayLength){
         if(property.maxArrayLength === property.minArrayLength){
             const definedLength = property.maxArrayLength;
             if(arrayItemsLength !== definedLength){
                 return { 
-                    message: 'property.string[].invalidLength',
+                    message: 'property.number[].invalidLength',
                     values: { minArrayLength: property.minArrayLength, maxArrayLength: property.maxArrayLength }
                 }
             }
         } 
         else if(arrayItemsLength < property.minArrayLength || arrayItemsLength > property.maxArrayLength) {
             return {
-                message: 'property.string[].invalidMinMaxLength',
+                message: 'property.number[].invalidMinMaxLength',
                 values: { minArrayLength: property.minArrayLength, maxArrayLength: property.maxArrayLength }
             }
         }
@@ -382,7 +288,7 @@ const validateArrayLength = (property: StringPropertyArray, arrayItemsLength: nu
     if (property.minArrayLength) {
         if (arrayItemsLength < property.minArrayLength) {
             return {
-                message: 'property.string[].invalidMinLength',
+                message: 'property.number[].invalidMinLength',
                 values: { minArrayLength: property.minArrayLength }
             };
         }
@@ -390,7 +296,7 @@ const validateArrayLength = (property: StringPropertyArray, arrayItemsLength: nu
     if (property.maxArrayLength) {
         if (arrayItemsLength > property.maxArrayLength) {
             return {
-                message: 'property.string[].invalidMaxLength',
+                message: 'property.number[].invalidMaxLength',
                 values: { maxArrayLength: property.maxArrayLength }
             };
         }
@@ -398,4 +304,3 @@ const validateArrayLength = (property: StringPropertyArray, arrayItemsLength: nu
 
     return null;
 }
-
