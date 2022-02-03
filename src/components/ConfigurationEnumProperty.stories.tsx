@@ -15,7 +15,7 @@ export default {
 export const Default: ComponentStory<typeof ConfigurationEnumProperty> = () => {
 
     const property: EnumProperty = {
-        type: "enum",
+        type: "enum|null",
         title: 'Select Input',
         description: 'Description of a Select input',
 		options: ["option1", "option2", 'option3'],

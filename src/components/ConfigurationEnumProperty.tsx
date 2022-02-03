@@ -43,13 +43,19 @@ export const ConfigurationEnumProperty: FC<ConfigurationEnumPropertyProps> = ({ 
     const handleBlur: (e: FocusEvent<HTMLSelectElement>) => void = (e) => {
         console.log('blur');
         if (inputValue !== previousValue) {
-            setPreviousValue(inputValue);
-            onChange(id, inputValue);
+            if(inputValue === '' && nullable){
+                onChange(id, null);
+            } else{
+                setPreviousValue(inputValue);
+                onChange(id, inputValue);
+            }
         }
     };
 
     //Variable used for the handleCopyToClipboard function to know the current description.
     var currentDescription: string|null = null;
+
+    const nullable: boolean = property.type.endsWith('|null');
         
     return (
         <ConfigurationBaseProperty
@@ -79,7 +85,9 @@ export const ConfigurationEnumProperty: FC<ConfigurationEnumPropertyProps> = ({ 
                 m-0
                 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none'
                 >
-                    <option value={''}></option>
+                    {nullable && 
+                        <option value={''}></option>
+                    }
                 {
                     property.options.map((option, key) =>{
                         if(option === inputValue){
