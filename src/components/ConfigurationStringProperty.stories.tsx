@@ -14,8 +14,8 @@ export default {
 
 
 // String One: 
+
 const propertyString: StringPropertyOne = {
-    nullable: false,
     defaultValue: 'None',
     type: 'string',
     title: 'String Field Title',

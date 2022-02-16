@@ -27,7 +27,7 @@ export interface BaseProperty<T> {
 }
 
 export interface StringPropertyOne extends BaseProperty<string> {
-    nullable:boolean;
+    // nullable:boolean;
     minLength?: number;
     maxLength?: number;
     pattern?: string;
@@ -36,7 +36,7 @@ export interface StringPropertyOne extends BaseProperty<string> {
 }
 
 export interface StringPropertyArray extends BaseProperty<string[]>{
-    nullable: boolean;
+    // nullable: boolean;
     minLength?: number;
     maxLength?: number;
     minArrayLength?: number;
@@ -48,13 +48,13 @@ export interface StringPropertyArray extends BaseProperty<string[]>{
 
 
 export interface NumberPropertyOne extends BaseProperty<number> {
-    nullable: boolean;
+    // nullable: boolean;
     min?: number;
     max?: number;
 }
 
 export interface NumberPropertyArray extends BaseProperty<number[]>{
-    nullable:boolean;
+    // nullable:boolean;
     min?: number;
     max?: number;
     minArrayLength?: number;

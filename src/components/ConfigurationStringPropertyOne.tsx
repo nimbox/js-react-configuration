@@ -8,11 +8,12 @@ import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 dayjs.extend(customParseFormat);
 
+
 export interface ConfigurationStringPropertyProps extends Omit<ConfigurationBasePropertyProps, "onSetDefaultValue" | "onCopyToClipboard" | "onError"> {
 
     id: string;
     value: string;
-    
+
     property: StringPropertyOne;
     nullable: boolean;
 
@@ -21,14 +22,12 @@ export interface ConfigurationStringPropertyProps extends Omit<ConfigurationBase
 }
 
 
-
-
 export const ConfigurationStringPropertyOne: FC<ConfigurationStringPropertyProps> = ({ id, value, property, nullable, onChange }) => {
     const { t } = useTranslation("common");
     const [inputValue, setInputValue] = useState(value);
-    const [errorMessage, setErrorMessage] = useState<string|null>(null);
-    const [previousValue, setPreviousValue] = useState<string>(String(value));
-    
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [previousValue, setPreviousValue] = useState<string>(value);
+
 
     const handleSetDefaultValue = () => {
         setErrorMessage(null);
@@ -47,13 +46,17 @@ export const ConfigurationStringPropertyOne: FC<ConfigurationStringPropertyProps
     const validate = (value: string) => validateMultiple([validateLength, validatePattern, validateFormat], property, value);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let error: ValidationError|null = null;
+
+        let value: string | null = e.target.value.trim();
+        let error: ValidationError | null = null;
+
         setInputValue(e.target.value);
-        if(nullable){
-            if (e.target.value.trim().length !== 0) {
+        
+        if (nullable) {
+            if (value.length !== 0) {
                 error = validate(e.target.value);
             }
-        } else{
+        } else {
             error = validate(e.target.value);
         }
 
@@ -66,41 +69,48 @@ export const ConfigurationStringPropertyOne: FC<ConfigurationStringPropertyProps
 
     };
 
-    const handleBlur = (e: FocusEvent<HTMLInputElement>)  => {
+    const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
+
         console.log('blur');
-        let error: ValidationError|null = null;
+
+        let value: string | null = e.target.value.trim();
+        let error: ValidationError | null = null;
+
         if (nullable) {
-            if (e.target.value.trim().length === 0) {
-                return onChange(id, null);
-            } else{
+            if (value.length === 0) {
+                value = null;
+            } else {
                 error = validate(e.target.value);
             }
-        } else{
+        } else {
             error = validate(e.target.value);
         }
+
         if (!error) {
-            if (e.target.value !== previousValue) {
-                setPreviousValue(String(e.target.value));
-                return onChange(id, e.target.value);
+            if (value !== previousValue) {
+                setPreviousValue(value ?? '');
+                onChange(id, value);
             }
         }
 
     };
 
     const handleEscKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void = (e) => {
+
         if (e.key === 'Escape') {
             setErrorMessage(null);
             setInputValue(previousValue);
         }
+
     }
 
 
     return (
         <ConfigurationBaseProperty
-        property={property}
-        onSetDefaultValue={handleSetDefaultValue}
-        onCopyToClipboard={handleCopyToClipboard}
-        onError={errorMessage}
+            property={property}
+            onSetDefaultValue={handleSetDefaultValue}
+            onCopyToClipboard={handleCopyToClipboard}
+            onError={errorMessage}
         >
             <input type="text"
                 value={inputValue}
@@ -109,25 +119,25 @@ export const ConfigurationStringPropertyOne: FC<ConfigurationStringPropertyProps
                 onChange={handleChange}
                 onBlur={handleBlur}
                 className={classnames('p-1 rounded-sm border-2', { 'border-red-500': errorMessage })}
-                />
+            />
         </ConfigurationBaseProperty>
     )
-    
+
 };
 
 
 const validateLength = (property: StringPropertyOne, value: string): ValidationError | null => {
-    if(property.minLength && property.maxLength){
-        if(property.maxLength === property.minLength){
+    if (property.minLength && property.maxLength) {
+        if (property.maxLength === property.minLength) {
             const definedLength = property.maxLength;
-            if(value.length !== definedLength){
-                return { 
+            if (value.length !== definedLength) {
+                return {
                     message: 'property.string.invalidLength',
                     values: { value, minLength: property.minLength, maxLength: property.maxLength }
                 }
             }
-        } 
-        else if(value.length < property.minLength || value.length > property.maxLength) {
+        }
+        else if (value.length < property.minLength || value.length > property.maxLength) {
             return {
                 message: 'property.string.invalidMinMaxLength',
                 values: { value, minLength: property.minLength, maxLength: property.maxLength }
@@ -201,7 +211,7 @@ const validateFormat = (property: StringPropertyOne, value: string): ValidationE
                 }
                 break;
             case 'datetime':
-                if(!dayjs(value, 'MM/DD/YY H:mm:ss A Z', true).isValid()) {
+                if (!dayjs(value, 'MM/DD/YY H:mm:ss A Z', true).isValid()) {
                     return {
                         message: 'property.string.invalidFormatDatetime',
                         values: { value }
