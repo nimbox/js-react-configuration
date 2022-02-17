@@ -140,7 +140,7 @@ export const ConfigurationNumberPropertyArray: FC<ConfigurationNumberPropertyPro
         } else{
             const { message, values } = error;
             setErrorMessage(t(message, values));
-            return setTimeout(()=>setErrorMessage(null), 3000);
+            return setErrorMessage(null)
         }
 
     }

@@ -31,11 +31,14 @@ export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyPro
     // const [inputValueItem, setInputValueItem] = useState<{ value: string, disabled: boolean }[]>(value.map(v => ({ value: v, disabled: false, ref = React.createRef<HTMLInputElement|null>(null) })));
 
     const [inputValueItem, setInputValueItem] = useState<string[]>(value);
-    const [disabledList, setDisabledList] = useState<boolean[]>(Array(inputValueItem.length).fill(true));
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string|null>(null);
     const [previousValue, setPreviousValue] = useState<string[]>(value);
+    const [inputIndex, setInputIndex] = useState<number|null>(null);
+    const [disabledAddButton, setDisabledAddButton] = useState<boolean>(false);
+    const [disabledDeleteButton, setDisabledDeleteButton] = useState<boolean>(false);
 
     const handleSetDefaultValue = () => {
+        setDisabledAddButton(false);
         setErrorMessage(null);
         setInputValueItem(property.defaultValue);
         onChange(id, property.defaultValue);
@@ -72,22 +75,39 @@ export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyPro
         console.log('blur');
 
         const error = validate(e.target.value);
+        const errorArrayLength = validateArrayLength(property, inputValueItem.length);
+        
+
         if (!error) {
-            disabledList.fill(true);
-            setDisabledList([...disabledList]);
-            if (nullable && inputValueItem.length === 0) {
-                onChange(id, null);
-            } else {
-                let newArrayItems: string[] = [];
-                inputValueItem.forEach((item) => {
-                    if (validate(item) === null) {
-                        newArrayItems.push(item);
-                    }
-                })
-                setInputValueItem(newArrayItems);
-                setPreviousValue(newArrayItems);
-                onChange(id, newArrayItems);
+            setInputIndex(null);
+            setDisabledAddButton(false);
+
+            // If the length of the array is the maximun, the add items button is blocked.
+            if(property.maxArrayLength){
+                if(inputValueItem.length === property.maxArrayLength){
+                    setDisabledAddButton(true);
+                }
             }
+            
+            let newArrayItems: string[] = [];
+            inputValueItem.forEach((item) => {
+                if (validate(item) === null) {
+                    newArrayItems.push(item);
+                }
+            })
+            setInputValueItem(newArrayItems);
+            setPreviousValue(newArrayItems);
+
+            // The only way it will send data to the backend is if
+            // (in order) the data for each item is validated and 
+            // the number of items is correct (if it has to be validated at all).
+            if(!errorArrayLength){
+                onChange(id, newArrayItems);
+            } else{
+                const { message, values } = errorArrayLength;
+                setErrorMessage(t(message, values));;
+            }
+            
         }
     };
 
@@ -99,15 +119,7 @@ export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyPro
     }
 
     const editItem: (key: number) => void = (key) => {
-        let newDisabledList = disabledList;
-        // Make the other inputs disabled.
-        if (disabledList.includes(false)) {
-            let index = disabledList.indexOf(false);
-            newDisabledList[index] = !disabledList[index];
-        }
-        newDisabledList[key] = !disabledList[key];
-        setDisabledList([...newDisabledList]);
-
+        setInputIndex(key);
     }
 
     const addItem = (e: React.MouseEvent<HTMLElement>) => {
@@ -120,31 +132,27 @@ export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyPro
         // 
         // ref.focus();
 
-
-        // If it is nullable, that items are added regardless of validation errors with the
-        // length of the Array, because if the array is empty, null must be registered.
-        if (nullable) {
-            if (property.maxArrayLength) {
-                if (inputValueItemDesiredLength < property.maxArrayLength) {
-                    inputValueItem.push('');
-                    disabledList.push(true);
-                    disabledList.fill(true);
-                    setDisabledList([...disabledList]);
-                    return setInputValueItem([...inputValueItem]);
-                }
-            }
-        }
-
         if (!error) {
+            setDisabledDeleteButton(false);
             inputValueItem.push('');
-            disabledList.push(true);
-            disabledList.fill(true);
-            setDisabledList([...disabledList]);
+            setDisabledAddButton(true);
             setInputValueItem([...inputValueItem]);
+            setInputIndex(inputValueItem.length-1);
         } else {
             const { message, values } = error;
             setErrorMessage(t(message, values));
-            setTimeout(() => setErrorMessage(null), 3000);
+
+            // If it is nullable, that items are added regardless of validation errors with the
+            // length of the Array, because if the array is empty, null must be registered.
+            if (nullable) {
+                if (property.minArrayLength) {
+                    if (inputValueItemDesiredLength < property.minArrayLength) {
+                        inputValueItem.push('');
+                        setInputValueItem([...inputValueItem]);
+                        setInputIndex(inputValueItem.length-1);
+                    }
+                }
+            }
         }
 
     }
@@ -164,26 +172,31 @@ export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyPro
             error = validateArrayLength(property, inputValueItemDesiredLength);
         }
 
+        if(!nullable) {
+            if(property.minArrayLength){
+                if(inputValueItemDesiredLength === property.minArrayLength){
+                    setDisabledDeleteButton(true);
+                }
+            }
+        }
+
         if (!error) {
-            (inputValueItem).splice(key, 1);
-            disabledList.splice(key, 1);
-            disabledList.fill(true);
-            setDisabledList([...disabledList]);
+            setDisabledAddButton(false);
+            inputValueItem.splice(key, 1);
             if (nullable && inputValueItemDesiredLength === 0) {
+                setErrorMessage(null);
                 onChange(id, null);
+            } else{
+                onChange(id, [...inputValueItem])
             }
             setInputValueItem([...inputValueItem]);
         } else {
             if (nullable) {
-                (inputValueItem).splice(key, 1);
-                disabledList.splice(key, 1);
-                disabledList.fill(true);
-                setDisabledList([...disabledList]);
+                inputValueItem.splice(key, 1);
                 setInputValueItem([...inputValueItem]);
             }
             const { message, values } = error;
             setErrorMessage(t(message, values));
-            setTimeout(() => setErrorMessage(null), 3000);
         }
 
     }
@@ -199,32 +212,40 @@ export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyPro
                 {id ? (inputValueItem as string[]).map((item: string, key: number) => {
                     return (
                         <div className="flex flex-row" key={key}>
-                            <input type="text"
-                                key={key}
-                                // ref={item.ref}
-                                name={String(key)}
-                                value={inputValueItem[key]}
-                                onFocus={() => console.log('focus')}
-                                onKeyDown={handleEscKeyDown}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                className={classnames('p-1 rounded-sm border-2', { 'border-red-500': errorMessage })}
-                                disabled={disabledList[key]}
-                            />
+                            { inputIndex === key ? 
+                                <input type="text"
+                                    autoFocus
+                                    key={key}
+                                    ref={React.createRef()}
+                                    name={String(key)}
+                                    value={inputValueItem[key]}
+                                    onFocus={() => console.log('focus')}
+                                    onKeyDown={handleEscKeyDown}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    className={classnames('p-1 rounded-sm border-2', { 'border-red-500': errorMessage })}
+                                /> 
+                                : 
+                                <div>
+                                    {inputValueItem[key]}
+                                </div> 
+                            }
                             <div onClick={() => editItem(key)} className="m-1 p-1 flex flex-center rounded-sm align-middle bg-transparent hover:bg-gray-400 cursor-pointer">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                 </svg>
                             </div>
+                            { disabledDeleteButton ? '' : 
                             <div onClick={() => deleteItem(key)} className="m-1 p-0.5 flex flex-center rounded-sm align-middle bg-transparent hover:bg-gray-400 cursor-pointer">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </div>
+                            }
                         </div>
                     )
                 }) : null}
-                <button onClick={addItem} className="bg-blue-500 mt-3 mb-2 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <button onClick={addItem} disabled={disabledAddButton} className={classnames({'bg-blue-500 hover:bg-blue-700': !disabledAddButton}, ' mt-3 mb-2 text-white font-bold py-2 px-4 rounded', { 'bg-gray-500 hover:bg-gray-500 cursor-not-allowed': disabledAddButton })}>
                     Add Element
                 </button>
             </div>

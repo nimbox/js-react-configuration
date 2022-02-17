@@ -35,14 +35,13 @@ export const StringOne: Story = (args) => (
 
  // String Array: 
 const propertyArray: StringPropertyArray = {
-    nullable: false,
     defaultValue: ['None'],
     type: 'string[]|null',
     title: 'Array String Field Title',
     minLength: 4,
     maxLength: 12,
     minArrayLength: 2,
-    maxArrayLength: 10,
+    maxArrayLength: 5,
     description: 'Description of a **array string** field, click <FONT COLOR="blue">[here](https://www.google.com)</FONT> and go to Google'
 };
 const keyArray: string = 'keyTest';
