@@ -28,7 +28,6 @@ export const Default: ComponentStory<typeof ConfigurationListOfComponents> = () 
                 },
                 "ar.overDueClasses":{
                     "defaultValue": [15, 20],
-                    "nullable": true,
                     "type": "number[]|null",
                     "title": "Array Number Field Title",
                     "min": "4",

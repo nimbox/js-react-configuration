@@ -25,14 +25,16 @@ export interface ConfigurationStringPropertyProps extends Omit<ConfigurationBase
 export const ConfigurationStringPropertyOne: FC<ConfigurationStringPropertyProps> = ({ id, value, property, nullable, onChange }) => {
     const { t } = useTranslation("common");
     const [inputValue, setInputValue] = useState(value);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string|null>(null);
     const [previousValue, setPreviousValue] = useState<string>(value);
 
 
     const handleSetDefaultValue = () => {
+
         setErrorMessage(null);
         setInputValue(String(property.defaultValue));
         onChange(id, property.defaultValue);
+        
     }
 
     const handleCopyToClipboard = () => {
@@ -80,10 +82,10 @@ export const ConfigurationStringPropertyOne: FC<ConfigurationStringPropertyProps
             if (value.length === 0) {
                 value = null;
             } else {
-                error = validate(e.target.value);
+                error = validate(value);
             }
         } else {
-            error = validate(e.target.value);
+            error = validate(value);
         }
 
         if (!error) {

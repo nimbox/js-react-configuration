@@ -27,21 +27,20 @@ export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyPro
 
     const { t } = useTranslation("common");
 
-    // Usar refs para los inputs.
-    // const [inputValueItem, setInputValueItem] = useState<{ value: string, disabled: boolean }[]>(value.map(v => ({ value: v, disabled: false, ref = React.createRef<HTMLInputElement|null>(null) })));
-
     const [inputValueItem, setInputValueItem] = useState<string[]>(value);
     const [errorMessage, setErrorMessage] = useState<string|null>(null);
     const [previousValue, setPreviousValue] = useState<string[]>(value);
     const [inputIndex, setInputIndex] = useState<number|null>(null);
     const [disabledAddButton, setDisabledAddButton] = useState<boolean>(false);
-    const [disabledDeleteButton, setDisabledDeleteButton] = useState<boolean>(false);
+    const [disabledDeleteButton, setDisabledDeleteButton] = useState<boolean>(value.length === property?.minArrayLength && !nullable ? true : false);
 
     const handleSetDefaultValue = () => {
+
         setDisabledAddButton(false);
         setErrorMessage(null);
         setInputValueItem(property.defaultValue);
         onChange(id, property.defaultValue);
+
     }
 
     const handleCopyToClipboard = () => {
@@ -55,6 +54,7 @@ export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyPro
     const validate = (value: string) => validateMultiple([validateLength, validatePattern, validateFormat], property, value);
 
     const handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void = (e) => {
+        
         let newInputValueItem: string[] = inputValueItem;
         newInputValueItem[Number(e.target.name)] = e.target.value;
         setInputValueItem([...newInputValueItem]);
@@ -112,10 +112,12 @@ export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyPro
     };
 
     const handleEscKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void = (e) => {
+        
         if (e.key === 'Escape') {
             setErrorMessage(null);
             setInputValueItem(previousValue);
         }
+
     }
 
     const editItem: (key: number) => void = (key) => {
@@ -133,11 +135,11 @@ export const ConfigurationStringPropertyArray: FC<ConfigurationStringPropertyPro
         // ref.focus();
 
         if (!error) {
-            setDisabledDeleteButton(false);
             inputValueItem.push('');
+            setDisabledDeleteButton(false);
             setDisabledAddButton(true);
-            setInputValueItem([...inputValueItem]);
             setInputIndex(inputValueItem.length-1);
+            setInputValueItem([...inputValueItem]);
         } else {
             const { message, values } = error;
             setErrorMessage(t(message, values));

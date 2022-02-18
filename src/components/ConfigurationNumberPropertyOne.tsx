@@ -28,9 +28,11 @@ export const ConfigurationNumberPropertyOne: FC<ConfigurationNumberPropertyProps
 
 
     const handleSetDefaultValue = () => {
+
         setErrorMessage(null);
         setInputValue(String(property.defaultValue));
         onChange(id, property.defaultValue);
+
     }
 
     const handleCopyToClipboard = () => {
@@ -44,18 +46,21 @@ export const ConfigurationNumberPropertyOne: FC<ConfigurationNumberPropertyProps
     const validate = (value: string) => validateMultiple([validateMagnitude], property, value);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+        let value: string | null = e.target.value.trim();
         let error: ValidationError|null = null;
-            // e.target.value.match(/^[-\]?[0-9]+([.]+)?([0-9]+)?$/)
-        if(e.target.value === '-'){
-            setInputValue(e.target.value)
-        } else if(!isNaN(Number(e.target.value))){
-            setInputValue(e.target.value)
+
+        // Ensure that the form only allows numbers.
+        if(value === '-'){
+            setInputValue(value)
+        } else if(!isNaN(Number(value))){
+            setInputValue(value)
         } else{
             return null;
         }
 
         if(nullable){
-            if (e.target.value !== '') {
+            if (value.length !== 0) {
                 error = validate(e.target.value);
             }
         } else{
@@ -72,31 +77,43 @@ export const ConfigurationNumberPropertyOne: FC<ConfigurationNumberPropertyProps
     };
 
     const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
+
         console.log('blur');
+
+        let value: string | null = e.target.value.trim();
         let error: ValidationError|null = null;
+
         if (nullable) {
-            if (Number(e.target.value) === 0) {
-                return onChange(id, null);
+            if (Number(value) === 0) {
+                onChange(id, null);
             } else{
-                error = validate(e.target.value);
+                error = validate(value);
             }
         } else{
-            error = validate(e.target.value);
+            error = validate(value);
         }
+
         if (!error) {
-            if (Number(e.target.value) !== previousValue) {
-                setPreviousValue(Number(e.target.value));
-                return onChange(id, e.target.value);
+            if (Number(value) !== previousValue) {
+                setPreviousValue(Number(value) ?? '0');
+                if(value === ''){
+                    setInputValue('0')
+                    onChange(id, 0);
+                } else{
+                    onChange(id, Number(value));
+                }
             }
         }
 
     };
 
     const handleEscKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void = (e) => {
+        
         if (e.key === 'Escape') {
             setErrorMessage(null);
             setInputValue(String(previousValue));
         }
+        
     }
 
     return (
