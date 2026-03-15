@@ -1,4 +1,7 @@
 # Correr Aplicación
+
+> Legacy notes. The canonical configuration specification is now in `docs/configuration-spec.md`.
+
 Servidor: npm run server.
 Cliente: npm run start.
 Storybook: npm run storybook.

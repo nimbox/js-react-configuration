@@ -1,13 +1,28 @@
 # js-react-configuration
-Schema and editor for simple configuration
 
-# Learn how to develop in the app
-Clicking [this link](./doc/configuration.md)
+This library provides the foundation for schema-driven configuration and preference editing.
 
-The basic terminology is:
+The core model is:
 
-Configuration is a set of properties (names without values).
-Properties have an schema and a value.
-Preferences are a set of property values (instances).
+- **Configuration**: a set of property definitions (no runtime values)
+- **Property**: one definition with type, constraints, localization, and merge metadata
+- **Preferences**: runtime values for those properties
 
+## Merge-order model
 
+A common profile is an ordered set of scopes:
+
+1. `system`
+2. `global`
+3. `application`
+4. `user`
+
+Values are resolved by merge order (downstream overrides upstream when allowed by property rules like `overridable`).
+
+Important: these scope names are an example profile, not a hard requirement of the library.  
+The library is designed so host applications can define their own ordered scope list and authorization logic.
+
+## More details
+
+- Main specification: `docs/configuration-spec.md`
+- Legacy notes: `docs/configuration.md`

@@ -1,0 +1,70 @@
+{
+  "ui.locale": {
+    "type": "enum",
+    "description": "ui.locale.description",
+    "enumItems": ["en", "es", "fr"],
+    "default": "en",
+    "scope": "global",
+    "overridable": true
+  },
+  "editor.fontSize": {
+    "type": "number",
+    "description": "editor.fontSize.description",
+    "default": 14,
+    "scope": "user",
+    "overridable": true
+  },
+  "ui.compact": {
+    "type": "boolean",
+    "description": "ui.compact.description",
+    "default": false,
+    "scope": "application",
+    "overridable": true
+  },
+  "profile.displayName": {
+    "type": "string",
+    "description": "profile.displayName.description",
+    "default": "Jane Doe",
+    "scope": "user",
+    "overridable": true
+  },
+  "tags.stringList": {
+    "type": "string[]",
+    "description": "tags.stringList.description",
+    "default": ["alpha", "beta"],
+    "scope": "application",
+    "overridable": true
+  },
+  "thresholds.numberList": {
+    "type": "number[]",
+    "description": "thresholds.numberList.description",
+    "default": [10, 20],
+    "scope": "system",
+    "overridable": false
+  },
+  "flags.booleanList": {
+    "type": "boolean[]",
+    "description": "flags.booleanList.description",
+    "default": [true, false],
+    "scope": "global",
+    "overridable": true
+  },
+  "ui.enabledLocales": {
+    "type": "enum[]",
+    "description": "ui.enabledLocales.description",
+    "enumItems": ["en", "es", "fr"],
+    "default": ["en", "es"],
+    "scope": "application",
+    "overridable": true
+  },
+  "rules.objectList": {
+    "type": "object[]",
+    "description": "rules.objectList.description",
+    "scope": "system",
+    "overridable": false,
+    "default": [
+      { "id": "rule-1", "enabled": true },
+      { "id": "rule-2", "enabled": false }
+    ]
+  }
+}
