@@ -1,73 +1,69 @@
-export type PreferenceType =
-  | 'string'
-  | 'number'
-  | 'boolean'
-  | 'enum'
-  | 'string[]'
-  | 'number[]'
-  | 'boolean[]'
-  | 'enum[]'
-  | 'object[]';
+export type ConfigurationScope = 'system' | 'global' | 'application' | 'user' | string;
+export type ConfigurationScalarType = 'string' | 'number' | 'boolean';
+export type ConfigurationPropertyType = ConfigurationScalarType | 'array';
+export type ConfigurationArrayItemType = 'string' | 'number' | 'boolean';
 
-export type PreferenceScope = 'system' | 'global' | 'application' | 'user' | string;
+export type ConfigurationScalarValue = string | number | boolean;
+export type ConfigurationArrayValue = string[] | number[] | boolean[];
+export type ConfigurationValue = ConfigurationScalarValue | ConfigurationArrayValue;
+export type ConfigurationCollectionItem = string | number | boolean;
 
-export type PreferenceScalarValue = string | number | boolean;
-export type PreferenceArrayValue =
-  | string[]
-  | number[]
-  | boolean[]
-  | string[]
-  | unknown[];
-export type PreferenceValue = PreferenceScalarValue | PreferenceArrayValue;
-export type PreferenceCollectionItem = string | number | boolean | Record<string, unknown>;
+export type ConfigurationFieldKind = 'scalar' | 'collection';
+export type ConfigurationValueKind = 'string' | 'number' | 'boolean';
+export type ConfigurationCardinality = 'one' | 'many';
 
-export type PreferenceFieldKind = 'scalar' | 'collection';
-export type PreferenceValueKind = 'string' | 'number' | 'boolean' | 'enum' | 'object';
-export type PreferenceCardinality = 'one' | 'many';
-
-type BasePreferenceProperty<TType extends PreferenceType, TDefault extends PreferenceValue> = {
+type BaseConfigurationProperty<
+  TType extends ConfigurationPropertyType,
+  TDefault extends ConfigurationValue,
+> = {
   type: TType;
-  description: string;
+  scope: ConfigurationScope;
+  overridable: boolean;
   default: TDefault;
-  scope?: PreferenceScope;
-  overridable?: boolean;
+  descriptionKey: string;
+  deprecationMessageKey?: string;
+  order?: number;
+  tags?: string[];
+  additionalProperties?: boolean;
+  minimum?: number;
+  maximum?: number;
+  minLength?: number;
+  maxLength?: number;
+  pattern?: string;
+  patternErrorMessage?: string;
+  format?: 'date' | 'time' | 'email' | 'uri' | 'ipv4' | string;
+  minItems?: number;
+  maxItems?: number;
 };
 
-export type StringPreferenceProperty = BasePreferenceProperty<'string', string>;
-export type NumberPreferenceProperty = BasePreferenceProperty<'number', number>;
-export type BooleanPreferenceProperty = BasePreferenceProperty<'boolean', boolean>;
-
-export type EnumPreferenceProperty = BasePreferenceProperty<'enum', string> & {
-  enumItems: string[];
+export type StringConfigurationProperty = BaseConfigurationProperty<'string', string> & {
+  enum?: string[];
+  enumLabels?: string[];
+  enumDescriptionKeys?: string[];
 };
 
-export type StringArrayPreferenceProperty = BasePreferenceProperty<'string[]', string[]>;
-export type NumberArrayPreferenceProperty = BasePreferenceProperty<'number[]', number[]>;
-export type BooleanArrayPreferenceProperty = BasePreferenceProperty<'boolean[]', boolean[]>;
-
-export type EnumArrayPreferenceProperty = BasePreferenceProperty<'enum[]', string[]> & {
-  enumItems: string[];
+export type NumberConfigurationProperty = BaseConfigurationProperty<'number', number>;
+export type BooleanConfigurationProperty = BaseConfigurationProperty<'boolean', boolean>;
+export type ArrayConfigurationProperty = BaseConfigurationProperty<'array', ConfigurationArrayValue> & {
+  items: {
+    type: ConfigurationArrayItemType;
+  };
 };
 
-export type ObjectArrayPreferenceProperty = BasePreferenceProperty<'object[]', unknown[]>;
+export type ConfigurationProperty =
+  | StringConfigurationProperty
+  | NumberConfigurationProperty
+  | BooleanConfigurationProperty
+  | ArrayConfigurationProperty;
 
-export type PreferenceProperty =
-  | StringPreferenceProperty
-  | NumberPreferenceProperty
-  | BooleanPreferenceProperty
-  | EnumPreferenceProperty
-  | StringArrayPreferenceProperty
-  | NumberArrayPreferenceProperty
-  | BooleanArrayPreferenceProperty
-  | EnumArrayPreferenceProperty
-  | ObjectArrayPreferenceProperty;
+export type ConfigurationSchema = Record<string, ConfigurationProperty>;
+export type ConfigurationScopeValues = Record<string, unknown>;
+export type ConfigurationValuesByScope = Record<string, ConfigurationScopeValues>;
+export type EffectivePreferences = Record<string, ConfigurationValue>;
 
-export type PreferenceSchema = Record<string, PreferenceProperty>;
-export type PreferenceValues = Record<string, unknown>;
-
-export type PreferenceConstraints = {
-  min?: number;
-  max?: number;
+export type ConfigurationConstraints = {
+  minimum?: number;
+  maximum?: number;
   minLength?: number;
   maxLength?: number;
   pattern?: string;
@@ -75,37 +71,51 @@ export type PreferenceConstraints = {
   maxItems?: number;
 };
 
-export type PreferenceCapabilities = {
+export type ConfigurationCapabilities = {
   canSet: boolean;
   canAdd: boolean;
   canRemove: boolean;
   canEditItems: boolean;
 };
 
-export type PreferenceDescriptor = {
+export type ConfigurationDescriptor = {
   key: string;
-  type: PreferenceType;
-  fieldKind: PreferenceFieldKind;
-  valueKind: PreferenceValueKind;
-  cardinality: PreferenceCardinality;
-  description: string;
+  type: ConfigurationPropertyType;
+  fieldKind: ConfigurationFieldKind;
+  valueKind: ConfigurationValueKind;
+  cardinality: ConfigurationCardinality;
+  descriptionKey: string;
   value: unknown;
-  defaultValue: PreferenceValue;
-  scope: PreferenceScope;
+  defaultValue: ConfigurationValue;
+  scope: ConfigurationScope;
   overridable: boolean;
-  enumItems?: string[];
-  constraints: PreferenceConstraints;
-  capabilities: PreferenceCapabilities;
+  enum?: string[];
+  constraints: ConfigurationConstraints;
+  capabilities: ConfigurationCapabilities;
   issues: string[];
 };
 
-export type PreferenceEngine = {
-  listDescriptors: () => PreferenceDescriptor[];
-  getDescriptor: (key: string) => PreferenceDescriptor | undefined;
-  getValues: () => PreferenceValues;
-  getIssues: () => Record<string, string[]>;
-  setValue: (key: string, next: unknown) => void;
-  insertItem: (key: string, item: PreferenceCollectionItem, index?: number) => void;
-  updateItemAt: (key: string, index: number, item: PreferenceCollectionItem) => void;
-  removeItemAt: (key: string, index: number) => void;
+export type UnknownKeyPolicy = 'warn' | 'ignore' | 'reject';
+
+export type ConfigurationEngine = {
+  listDescriptors: (scope: ConfigurationScope) => ConfigurationDescriptor[];
+  getDescriptor: (scope: ConfigurationScope, key: string) => ConfigurationDescriptor | undefined;
+  getValuesByScope: () => ConfigurationValuesByScope;
+  getEffectivePreferences: () => EffectivePreferences;
+  getWarnings: () => string[];
+  getIssuesByScope: (scope: ConfigurationScope) => Record<string, string[]>;
+  setScopedValue: (scope: ConfigurationScope, key: string, next: unknown) => void;
+  insertScopedItem: (
+    scope: ConfigurationScope,
+    key: string,
+    item: ConfigurationCollectionItem,
+    index?: number,
+  ) => void;
+  updateScopedItemAt: (
+    scope: ConfigurationScope,
+    key: string,
+    index: number,
+    item: ConfigurationCollectionItem,
+  ) => void;
+  removeScopedItemAt: (scope: ConfigurationScope, key: string, index: number) => void;
 };

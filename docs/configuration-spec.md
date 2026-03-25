@@ -20,12 +20,13 @@ Read this as:
 
 Schema construction and values:
 
-- A `Schema` is the composition of all `Fragments`.
+- A `Schema` is the composition of multiple `Fragments`.
 - `Values` are per-scope assignments to `Property` keys.
 - A scope can be schema-defining, value-only, or both (for example,
   `user` is commonly value-only).
 - Authorization maps to scopes and controls who can write values at
-  each layer.
+  each layer. The higher the scope, the more permissions are needed to
+  write values.
 
 This document is schema-focused and does not define transport,
 storage, mutation protocols, or authorization policy.

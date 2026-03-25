@@ -1,59 +1,43 @@
 import { Button, Input } from '@nimbox/js-react-lux';
-import { type ChangeEvent, useEffect, useMemo, useState } from 'react';
-import { createPreferenceEngine } from '../../../core/preferences/engine';
+import { type ChangeEvent, useMemo, useState } from 'react';
+import { createConfigurationEngine } from '../../../core/preferences/engine';
 import type {
-  PreferenceCollectionItem,
-  PreferenceDescriptor,
-  PreferenceEngine,
-  PreferenceScope,
-  PreferenceSchema,
-  PreferenceValues,
+  ConfigurationCollectionItem,
+  ConfigurationDescriptor,
+  ConfigurationEngine,
+  ConfigurationScope,
+  ConfigurationSchema,
+  ConfigurationScopeValues,
 } from '../../../core/preferences/types';
 
-type HeadlessLuxPreferenceEditorProps = {
-  schema: PreferenceSchema;
-  initialValueByScope?: Record<string, PreferenceValues>;
+type HeadlessLuxConfigurationEditorProps = {
+  schema: ConfigurationSchema;
+  initialValuesByScope?: Record<string, ConfigurationScopeValues>;
 };
 
-const DEFAULT_SCOPE_ORDER: PreferenceScope[] = ['system', 'global', 'application', 'user'];
+const DEFAULT_SCOPE_ORDER: ConfigurationScope[] = ['system', 'global', 'application', 'user'];
 
-type PreferenceNavLeaf = {
+type ConfigurationNavLeaf = {
   kind: 'leaf';
   id: string;
   label: string;
   key: string;
 };
 
-type PreferenceNavGroup = {
+type ConfigurationNavGroup = {
   kind: 'group';
   id: string;
   label: string;
-  children: PreferenceNavNode[];
+  children: ConfigurationNavNode[];
   leafCount: number;
 };
 
-type PreferenceNavNode = PreferenceNavLeaf | PreferenceNavGroup;
+type ConfigurationNavNode = ConfigurationNavLeaf | ConfigurationNavGroup;
 
-function textToObject(text: string): Record<string, unknown> {
-  try {
-    const parsed = JSON.parse(text) as unknown;
-    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
-      return parsed as Record<string, unknown>;
-    }
-  } catch {
-    // Fall through and wrap raw text.
-  }
-  return { value: text };
-}
-
-function getPropertyScope(scope: PreferenceScope | undefined): PreferenceScope {
-  return scope ?? 'user';
-}
-
-function resolveScopes(schema: PreferenceSchema): PreferenceScope[] {
-  const discovered = new Set<PreferenceScope>();
+function resolveScopes(schema: ConfigurationSchema): ConfigurationScope[] {
+  const discovered = new Set<ConfigurationScope>();
   for (const property of Object.values(schema)) {
-    discovered.add(getPropertyScope(property.scope));
+    discovered.add(property.scope);
   }
 
   const ordered = DEFAULT_SCOPE_ORDER.filter((scope) => discovered.has(scope));
@@ -61,23 +45,7 @@ function resolveScopes(schema: PreferenceSchema): PreferenceScope[] {
   return [...ordered, ...extras];
 }
 
-function buildSchemaByScope(
-  schema: PreferenceSchema,
-  scopes: PreferenceScope[],
-): Record<PreferenceScope, PreferenceSchema> {
-  const entries = Object.entries(schema);
-  const byScope: Record<PreferenceScope, PreferenceSchema> = {};
-
-  for (const scope of scopes) {
-    byScope[scope] = Object.fromEntries(
-      entries.filter(([, property]) => getPropertyScope(property.scope) === scope),
-    );
-  }
-
-  return byScope;
-}
-
-function sortNavNodes(nodes: PreferenceNavNode[]): PreferenceNavNode[] {
+function sortNavNodes(nodes: ConfigurationNavNode[]): ConfigurationNavNode[] {
   const sorted = [...nodes];
   sorted.sort((a, b) => {
     if (a.kind === b.kind) {
@@ -88,8 +56,8 @@ function sortNavNodes(nodes: PreferenceNavNode[]): PreferenceNavNode[] {
   return sorted;
 }
 
-function buildPreferenceHierarchy(keys: string[]): PreferenceNavGroup {
-  const root: PreferenceNavGroup = {
+function buildConfigurationHierarchy(keys: string[]): ConfigurationNavGroup {
+  const root: ConfigurationNavGroup = {
     kind: 'group',
     id: 'root',
     label: 'All preferences',
@@ -117,7 +85,7 @@ function buildPreferenceHierarchy(keys: string[]): PreferenceNavGroup {
       }
 
       let child = current.children.find(
-        (candidate): candidate is PreferenceNavGroup =>
+        (candidate): candidate is ConfigurationNavGroup =>
           candidate.kind === 'group' && candidate.id === id,
       );
 
@@ -136,7 +104,7 @@ function buildPreferenceHierarchy(keys: string[]): PreferenceNavGroup {
     }
   }
 
-  const applyMeta = (node: PreferenceNavGroup): number => {
+  const applyMeta = (node: ConfigurationNavGroup): number => {
     let count = 0;
     for (const child of node.children) {
       if (child.kind === 'leaf') {
@@ -155,10 +123,26 @@ function buildPreferenceHierarchy(keys: string[]): PreferenceNavGroup {
 }
 
 function renderCollectionItemInput(
-  descriptor: PreferenceDescriptor,
-  item: PreferenceCollectionItem,
-  onChange: (next: PreferenceCollectionItem) => void,
+  descriptor: ConfigurationDescriptor,
+  item: ConfigurationCollectionItem,
+  onChange: (next: ConfigurationCollectionItem) => void,
 ) {
+  if (descriptor.valueKind === 'string' && descriptor.enum) {
+    return (
+      <select
+        className="w-full rounded border border-gray-300 p-2"
+        value={String(item)}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        {descriptor.enum.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
   if (descriptor.valueKind === 'string') {
     return (
       <Input
@@ -186,58 +170,65 @@ function renderCollectionItemInput(
       <label className="inline-flex items-center gap-2">
         <input
           type="checkbox"
-          checked={Boolean(item)}
+          checked={item === true}
           onChange={(e) => onChange(e.target.checked)}
         />
-        <span>{Boolean(item) ? 'true' : 'false'}</span>
+        <span>{item === true ? 'true' : 'false'}</span>
       </label>
-    );
-  }
-
-  if (descriptor.valueKind === 'enum') {
-    return (
-      <select
-        className="w-full rounded border border-gray-300 p-2"
-        value={String(item)}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        {(descriptor.enumItems ?? []).map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
     );
   }
 
   return (
     <Input
       value={JSON.stringify(item)}
-      onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(textToObject(e.target.value))}
+      onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
     />
   );
 }
 
-function getDefaultCollectionItem(descriptor: PreferenceDescriptor): PreferenceCollectionItem {
+function getDefaultCollectionItem(descriptor: ConfigurationDescriptor): ConfigurationCollectionItem {
   if (descriptor.valueKind === 'string') return '';
   if (descriptor.valueKind === 'number') return 0;
   if (descriptor.valueKind === 'boolean') return false;
-  if (descriptor.valueKind === 'enum') return descriptor.enumItems?.[0] ?? '';
-  return {};
+  return '';
 }
 
 function renderDescriptorEditor(
-  descriptor: PreferenceDescriptor,
-  engine: PreferenceEngine,
+  descriptor: ConfigurationDescriptor,
+  engine: ConfigurationEngine,
+  selectedScope: ConfigurationScope,
   rerender: () => void,
 ) {
+  const { capabilities } = descriptor;
+
   if (descriptor.fieldKind === 'scalar') {
     if (descriptor.valueKind === 'string') {
+      if (descriptor.enum) {
+        return (
+          <select
+            className="w-full rounded border border-gray-300 p-2 disabled:bg-gray-100"
+            value={String(descriptor.value ?? '')}
+            disabled={!capabilities.canSet}
+            onChange={(e) => {
+              engine.setScopedValue(selectedScope, descriptor.key, e.target.value);
+              rerender();
+            }}
+          >
+            {descriptor.enum.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        );
+      }
+
       return (
         <Input
           value={String(descriptor.value ?? '')}
+          disabled={!capabilities.canSet}
           onChange={(e: ChangeEvent<HTMLInputElement>) => {
-            engine.setValue(descriptor.key, e.target.value);
+            engine.setScopedValue(selectedScope, descriptor.key, e.target.value);
             rerender();
           }}
         />
@@ -249,9 +240,10 @@ function renderDescriptorEditor(
         <Input
           type="number"
           value={String(descriptor.value ?? '')}
+          disabled={!capabilities.canSet}
           onChange={(e: ChangeEvent<HTMLInputElement>) => {
             const next = Number(e.target.value);
-            engine.setValue(descriptor.key, Number.isNaN(next) ? 0 : next);
+            engine.setScopedValue(selectedScope, descriptor.key, Number.isNaN(next) ? 0 : next);
             rerender();
           }}
         />
@@ -263,33 +255,15 @@ function renderDescriptorEditor(
         <label className="inline-flex items-center gap-2">
           <input
             type="checkbox"
-            checked={Boolean(descriptor.value)}
+            checked={descriptor.value === true}
+            disabled={!capabilities.canSet}
             onChange={(e) => {
-              engine.setValue(descriptor.key, e.target.checked);
+              engine.setScopedValue(selectedScope, descriptor.key, e.target.checked);
               rerender();
             }}
           />
           <span>Enabled</span>
         </label>
-      );
-    }
-
-    if (descriptor.valueKind === 'enum') {
-      return (
-        <select
-          className="w-full rounded border border-gray-300 p-2"
-          value={String(descriptor.value ?? '')}
-          onChange={(e) => {
-            engine.setValue(descriptor.key, e.target.value);
-            rerender();
-          }}
-        >
-          {(descriptor.enumItems ?? []).map((item) => (
-            <option key={item} value={item}>
-              {item}
-            </option>
-          ))}
-        </select>
       );
     }
 
@@ -300,20 +274,21 @@ function renderDescriptorEditor(
     );
   }
 
-  const items = Array.isArray(descriptor.value) ? (descriptor.value as PreferenceCollectionItem[]) : [];
+  const items = Array.isArray(descriptor.value) ? (descriptor.value as ConfigurationCollectionItem[]) : [];
   return (
     <div className="space-y-2">
       {items.map((item, index) => (
         <div key={`${descriptor.key}-${index}`} className="flex items-center gap-2">
           {renderCollectionItemInput(descriptor, item, (next) => {
-            engine.updateItemAt(descriptor.key, index, next);
+            engine.updateScopedItemAt(selectedScope, descriptor.key, index, next);
             rerender();
           })}
           <Button
             variant="text"
             semantic="danger"
+            disabled={!capabilities.canRemove}
             onClick={() => {
-              engine.removeItemAt(descriptor.key, index);
+              engine.removeScopedItemAt(selectedScope, descriptor.key, index);
               rerender();
             }}
           >
@@ -322,8 +297,9 @@ function renderDescriptorEditor(
         </div>
       ))}
       <Button
+        disabled={!capabilities.canAdd}
         onClick={() => {
-          engine.insertItem(descriptor.key, getDefaultCollectionItem(descriptor));
+          engine.insertScopedItem(selectedScope, descriptor.key, getDefaultCollectionItem(descriptor));
           rerender();
         }}
       >
@@ -334,8 +310,9 @@ function renderDescriptorEditor(
 }
 
 function renderDescriptorCard(
-  descriptor: PreferenceDescriptor,
-  engine: PreferenceEngine,
+  descriptor: ConfigurationDescriptor,
+  engine: ConfigurationEngine,
+  selectedScope: ConfigurationScope,
   rerender: () => void,
 ) {
   return (
@@ -346,14 +323,14 @@ function renderDescriptorCard(
           {descriptor.fieldKind} / {descriptor.valueKind}
         </div>
       </div>
-      <div className="mb-2 text-sm text-gray-600">{descriptor.description}</div>
+      <div className="mb-2 text-sm text-gray-600">{descriptor.descriptionKey}</div>
       <div className="mb-3 flex gap-3 text-xs text-gray-500">
         <span>Scope: {descriptor.scope}</span>
         <span>Overridable: {descriptor.overridable ? 'yes' : 'no'}</span>
         <span>Cardinality: {descriptor.cardinality}</span>
       </div>
 
-      {renderDescriptorEditor(descriptor, engine, rerender)}
+      {renderDescriptorEditor(descriptor, engine, selectedScope, rerender)}
 
       {descriptor.issues.length > 0 && (
         <ul className="mt-2 list-disc pl-5 text-sm text-red-600">
@@ -366,56 +343,43 @@ function renderDescriptorCard(
   );
 }
 
-export function HeadlessLuxPreferenceEditor({
+export function HeadlessLuxConfigurationEditor({
   schema,
-  initialValueByScope = {},
-}: HeadlessLuxPreferenceEditorProps) {
+  initialValuesByScope = {},
+}: HeadlessLuxConfigurationEditorProps) {
   const scopes = useMemo(() => resolveScopes(schema), [schema]);
-  const schemaByScope = useMemo(() => buildSchemaByScope(schema, scopes), [schema, scopes]);
-  const [selectedScope, setSelectedScope] = useState<PreferenceScope>(scopes[0] ?? 'user');
+  const [selectedScope, setSelectedScope] = useState<ConfigurationScope>(scopes[0] ?? 'user');
   const [selectedKey, setSelectedKey] = useState<string | undefined>(undefined);
   const [, setVersion] = useState(0);
   const rerender = () => setVersion((v) => v + 1);
 
-  useEffect(() => {
-    if (!scopes.includes(selectedScope)) {
-      setSelectedScope(scopes[0] ?? 'user');
-    }
-  }, [scopes, selectedScope]);
-
-  const enginesByScope = useMemo(() => {
-    const byScope: Record<PreferenceScope, PreferenceEngine> = {};
-    for (const scope of scopes) {
-      byScope[scope] = createPreferenceEngine({
-        schema: schemaByScope[scope] ?? {},
-        initialValue: initialValueByScope[scope] ?? {},
-      });
-    }
-    return byScope;
-  }, [scopes, schemaByScope, initialValueByScope]);
-
-  const activeEngine = enginesByScope[selectedScope];
-  const activeDescriptors = activeEngine?.listDescriptors() ?? [];
+  const engine = useMemo(
+    () =>
+      createConfigurationEngine({
+        schema,
+        scopeOrder: scopes,
+        initialValuesByScope,
+      }),
+    [schema, scopes, initialValuesByScope],
+  );
+  const normalizedSelectedScope = scopes.includes(selectedScope) ? selectedScope : (scopes[0] ?? 'user');
+  const activeDescriptors = engine.listDescriptors(normalizedSelectedScope);
   const activeKeys = activeDescriptors.map((descriptor) => descriptor.key);
   const descriptorByKey = new Map(activeDescriptors.map((descriptor) => [descriptor.key, descriptor]));
-  const hierarchy = useMemo(() => buildPreferenceHierarchy(activeKeys), [activeKeys]);
+  const hierarchy = buildConfigurationHierarchy(activeKeys);
+  const warnings = engine.getWarnings();
+  const normalizedSelectedKey =
+    selectedKey && activeKeys.includes(selectedKey) ? selectedKey : undefined;
 
-  useEffect(() => {
-    if (!selectedKey) return;
-    if (!activeKeys.includes(selectedKey)) {
-      setSelectedKey(undefined);
-    }
-  }, [selectedKey, activeKeys]);
-
-  const descriptorsToRender = selectedKey
-    ? activeDescriptors.filter((descriptor) => descriptor.key === selectedKey)
+  const descriptorsToRender = normalizedSelectedKey
+    ? activeDescriptors.filter((descriptor) => descriptor.key === normalizedSelectedKey)
     : activeDescriptors;
 
-  const renderNavNode = (node: PreferenceNavNode, depth: number) => {
+  const renderNavNode = (node: ConfigurationNavNode, depth: number) => {
     const indentStyle = { marginLeft: `${Math.max(depth, 0) * 10}px` };
 
     if (node.kind === 'leaf') {
-      const isSelected = selectedKey === node.key;
+      const isSelected = normalizedSelectedKey === node.key;
       const descriptor = descriptorByKey.get(node.key);
       return (
         <button
@@ -427,7 +391,7 @@ export function HeadlessLuxPreferenceEditor({
           ].join(' ')}
           style={indentStyle}
           onClick={() => setSelectedKey(node.key)}
-          title={descriptor?.description}
+          title={descriptor?.descriptionKey}
         >
           {node.label}
         </button>
@@ -451,8 +415,8 @@ export function HeadlessLuxPreferenceEditor({
     <div className="space-y-4 rounded border border-gray-200 bg-white p-4">
       <div className="flex items-center justify-between border-b border-gray-200 pb-3">
         <div>
-          <h2 className="text-lg font-semibold">Preferences</h2>
-          <p className="text-sm text-gray-600">Descriptor-driven editor by scope</p>
+          <h2 className="text-lg font-semibold">Configuration</h2>
+          <p className="text-sm text-gray-600">Spec-aligned descriptor editor by scope</p>
         </div>
       </div>
 
@@ -478,7 +442,7 @@ export function HeadlessLuxPreferenceEditor({
           <div className="border-b border-gray-200 pb-2">
             <div className="text-sm font-semibold text-gray-900">Hierarchy</div>
             <div className="text-xs text-gray-500">
-              {activeDescriptors.length} preference{activeDescriptors.length === 1 ? '' : 's'}
+              {activeDescriptors.length} key{activeDescriptors.length === 1 ? '' : 's'}
             </div>
           </div>
           <Button
@@ -490,16 +454,16 @@ export function HeadlessLuxPreferenceEditor({
             }
             onClick={() => setSelectedKey(undefined)}
           >
-            All preferences
+            All keys
           </Button>
           <div className="space-y-2">{hierarchy.children.map((node) => renderNavNode(node, 0))}</div>
         </aside>
 
         <section className="space-y-3">
-          {selectedKey && (
+          {normalizedSelectedKey && (
             <div className="flex items-center justify-between rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm">
               <span>
-                Selected: <span className="font-medium">{selectedKey}</span>
+                Selected: <span className="font-medium">{normalizedSelectedKey}</span>
               </span>
               <Button
                 variant="text"
@@ -513,17 +477,29 @@ export function HeadlessLuxPreferenceEditor({
 
           {activeDescriptors.length === 0 && (
             <div className="rounded border border-dashed border-gray-300 p-4 text-sm text-gray-500">
-              No properties in <span className="font-medium">{selectedScope}</span> scope.
+              No visible keys in <span className="font-medium">{normalizedSelectedScope}</span> scope.
             </div>
           )}
 
-          {descriptorsToRender.map((descriptor) => renderDescriptorCard(descriptor, activeEngine, rerender))}
-
-          {activeEngine && (
-            <pre className="rounded bg-gray-900 p-3 text-xs text-gray-100">
-              {JSON.stringify(activeEngine.getValues(), null, 2)}
-            </pre>
+          {descriptorsToRender.map((descriptor) =>
+            renderDescriptorCard(descriptor, engine, normalizedSelectedScope, rerender),
           )}
+
+          {warnings.length > 0 && (
+            <ul className="rounded border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+              {warnings.map((warning) => (
+                <li key={warning}>{warning}</li>
+              ))}
+            </ul>
+          )}
+
+          <pre className="rounded bg-gray-900 p-3 text-xs text-gray-100">
+            {JSON.stringify(engine.getValuesByScope(), null, 2)}
+          </pre>
+
+          <pre className="rounded bg-gray-900 p-3 text-xs text-gray-100">
+            {JSON.stringify(engine.getEffectivePreferences(), null, 2)}
+          </pre>
         </section>
       </div>
     </div>
