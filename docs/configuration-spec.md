@@ -5,7 +5,7 @@ resolution model.
 
 The most important concept is the split between:
 
-- **Host-defined hierarchy**: the ordered list of scopes used for
+- **Predefined hierarchy**: the ordered list of scopes used for
   merge precedence (example: `system -> global -> application ->
   user`).
 - **Schema-defined behavior**: each `Property` declares `scope` and
@@ -13,7 +13,7 @@ The most important concept is the split between:
 
 Read this as:
 
-- Scope order comes from the host.
+- Scope order that is predefined.
 - Property behavior comes from the schema.
 - Final preferences come from merging values by scope order, while
   respecting each property's `overridable` rule.
@@ -54,8 +54,8 @@ result.
 To compute `Preferences`, the resolver needs:
 
 - An ordered list of `scopes` (merge precedence).
-- The full `schema` (including each `Property`, `scope`, and
-  `overridable`).
+- The full `schema` (including each `Property`, which must defined 
+  `scope`, and `overridable`).
 - A `values` object keyed by `scope`, where each value is a key-value
   map of property assignments for that layer.
 
@@ -218,18 +218,18 @@ structure:
 
 Each `Property` in `configuration.properties` must define:
 
-- `type` (required): one of `boolean`, `number`, `string`, `array`
+- `type` (required): one of `boolean`, `number`, `string`, `array`, `unknown`
 - `items` (required when `type: "array"`): object with `type` equal to
-  `boolean`, `number`, or `string`
-- `scope` (required, host-defined layer identifier)
+  `boolean`, `number`, `string`, or `unknown`
+- `scope` (required)
 - `overridable` (required boolean)
 - `default` (required)
-- `descriptionKey` (required localization key; resolved to Markdown
+- `description` (required localization key; resolved to Markdown
   when available, otherwise rendered as the key text)
 
 Optional shared metadata:
 
-- `deprecationMessageKey` (localization key; resolved to Markdown
+- `deprecationMessage` (localization key; resolved to Markdown
   when available, otherwise rendered as the key text)
 - `order`
 - `tags`
@@ -592,6 +592,50 @@ Fragment `editor-app`:
 - New optional fields can be added without breaking older consumers.
 - New property types require explicit platform support and validator
   updates.
+  
+## Hierarchical display expectations
+
+When working with the GUI we need to have some way to group and
+order all the properties. We will leverage the period-based name of
+the key as the hierarchy. The keys should have at least two
+levels, for example, we can't have a key `color` we need to have 
+a key `editor.color`. 
+
+So let's assume that we have the following list of properties:
+
+- editor
+- editor.color
+- editor.backgroundColor
+- editor.font
+- editor.font.size
+- editor.fond.color
+
+They should be rendered as:
+
+- [+] editor 
+  - color
+  - backgroundColor 
+  - [+] font
+    - size
+    - color
+   
+For each level, and for each property, we need to have a localization 
+message. For example, we need to have the following localization keys.
+
+```json
+{ 
+    "editor": "Editor",
+    "editor.color": "Color",
+    "editor.color.desciption": "Descripción de qué hace este color",
+    "editor.color.backgroundColor": "Color del fondo",
+    "editor.color.backgroundColor.description": "Descripción de qué hace este color",
+    "editor.font": "Fuentes",
+    "editor.font.size": "Tamaño de la fuente",
+    "editor.font.color": "Color de la fuente"
+}
+```
+
+
 
 ## Non-Goals
 
