@@ -1,0 +1,38 @@
+{
+  "system": {
+    "editor.theme.mode": "light",
+    "workspace.shortcuts": {
+      "save": "CmdOrCtrl+S",
+      "open": "CmdOrCtrl+O",
+      "search": "CmdOrCtrl+F"
+    }
+  },
+  "global": {
+    "editor.font.size": 15,
+    "notifications.digest.hours": [
+      8,
+      18
+    ]
+  },
+  "application": {
+    "editor.theme.mode": "dark",
+    "editor.font.family": "JetBrains Mono",
+    "editor.extensions.enabled": [
+      "spellcheck",
+      "formatter",
+      "vim"
+    ]
+  },
+  "user": {
+    "editor.theme.mode": "highContrast",
+    "editor.font.size": 16,
+    "editor.font.family": "Iosevka",
+    "editor.extensions.enabled": [
+      "formatter"
+    ],
+    "assistant.hints.enabled": false,
+    "workspace.shortcuts": {
+      "save": "CmdOrCtrl+Shift+S"
+    }
+  }
+}

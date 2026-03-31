@@ -27,3 +27,34 @@ The library is designed so host applications can define their own ordered scope 
 - Main specification: `docs/configuration-spec.md`
 - Legacy notes: `docs/configuration.md`
 
+## TypeScript workspace
+
+The TypeScript packages live in `typescript/`.
+
+First-time setup:
+
+```bash
+cd typescript
+npm install
+```
+
+Generate types for `@nimbox/preferences` from `spec/property.schema.json`:
+
+```bash
+cd typescript
+npm run generate
+```
+
+Generated files are written to:
+
+- `typescript/packages/preferences/src/generated/*.ts`
+- `typescript/packages/preferences/src/generated/index.ts`
+
+Other useful commands:
+
+```bash
+cd typescript
+npm run typecheck
+npm run build
+```
+

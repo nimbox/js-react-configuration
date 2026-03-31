@@ -1,0 +1,30 @@
+{
+  "name": "@nimbox/preferences",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./generated": {
+      "types": "./dist/generated/index.d.ts",
+      "default": "./dist/generated/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "generate": "json2ts -i ../../../spec/property.schema.json -o ./src/generated/types.ts",
+    "build": "npm run generate && tsc -b --force ./tsconfig.json",
+    "typecheck": "npm run generate && tsc -p ./tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "json-schema-to-typescript": "^15.0.4",
+    "typescript": "^6.0.2"
+  }
+}

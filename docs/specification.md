@@ -1,4 +1,4 @@
-# Configuration Specification
+# Preferences Specification
 
 This specification defines a schema contract and a hierarchical value
 resolution model.

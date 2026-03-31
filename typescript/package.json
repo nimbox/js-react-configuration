@@ -1,0 +1,17 @@
+{
+  "name": "@nimbox/preferences-typescript-workspace",
+  "private": true,
+  "version": "0.0.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "generate": "npm run generate --workspace @nimbox/preferences",
+    "build": "npm run build --workspace @nimbox/preferences",
+    "typecheck": "npm run typecheck --workspace @nimbox/preferences"
+  },
+  "overrides": {
+    "vite": "^8.0.3",
+    "@joshwooding/vite-plugin-react-docgen-typescript": "^0.7.0"
+  }
+}

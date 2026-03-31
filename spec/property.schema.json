@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nimbox/preferences/property.schema.json",
+  "title": "Preference Property",
+  "type": "object",
+  "$defs": {
+    "itemSchema": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["boolean", "number", "string", "object"]
+        },
+        "enum": {
+          "type": "array",
+          "minItems": 1
+        },
+        "enumLabels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enumDescriptionKeys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "minimum": {
+          "type": "number"
+        },
+        "maximum": {
+          "type": "number"
+        },
+        "minLength": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "patternErrorMessage": {
+          "type": "string",
+          "minLength": 1
+        },
+        "format": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["enum"]
+          },
+          "then": {
+            "required": ["type"]
+          }
+        },
+        {
+          "if": {
+            "required": ["enumLabels"]
+          },
+          "then": {
+            "required": ["enum"]
+          }
+        },
+        {
+          "if": {
+            "required": ["enumDescriptionKeys"]
+          },
+          "then": {
+            "required": ["enum"]
+          }
+        }
+      ],
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "type",
+    "scope",
+    "overridable",
+    "default",
+    "description"
+  ],
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["boolean", "number", "string", "array", "object"]
+    },
+    "scope": {
+      "type": "string",
+      "minLength": 1
+    },
+    "overridable": {
+      "type": "boolean"
+    },
+    "default": {},
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "deprecationMessage": {
+      "type": "string",
+      "minLength": 1
+    },
+    "order": {
+      "type": "number"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": {
+      "type": "boolean"
+    },
+    "items": {
+      "$ref": "#/$defs/itemSchema"
+    },
+    "enum": {
+      "type": "array",
+      "minItems": 1
+    },
+    "enumLabels": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "enumDescriptionKeys": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "minimum": {
+      "type": "number"
+    },
+    "maximum": {
+      "type": "number"
+    },
+    "minLength": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "maxLength": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "pattern": {
+      "type": "string"
+    },
+    "patternErrorMessage": {
+      "type": "string",
+      "minLength": 1
+    },
+    "format": {
+      "type": "string"
+    },
+    "minItems": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "maxItems": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "type": {
+          "enum": ["boolean", "number", "string", "object"]
+        },
+        "default": {
+          "type": ["boolean", "number", "string", "object", "array", "null"]
+        }
+      },
+      "not": {
+        "required": ["items"]
+      }
+    },
+    {
+      "properties": {
+        "type": {
+          "const": "array"
+        },
+        "items": {
+          "$ref": "#/$defs/itemSchema"
+        },
+        "default": {
+          "type": "array"
+        }
+      },
+      "required": ["type", "items"]
+    }
+  ],
+  "additionalProperties": true
+}
