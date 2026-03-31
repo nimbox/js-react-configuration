@@ -21,7 +21,7 @@ export type PreferenceProperty = {
    */
   enum?: [unknown, ...unknown[]];
   enumLabels?: string[];
-  enumDescriptionKeys?: string[];
+  enumDescriptions?: string[];
   minimum?: number;
   maximum?: number;
   minLength?: number;
@@ -62,7 +62,7 @@ export type ItemSchema = {
    */
   enum?: [unknown, ...unknown[]];
   enumLabels?: string[];
-  enumDescriptionKeys?: string[];
+  enumDescriptions?: string[];
   minimum?: number;
   maximum?: number;
   minLength?: number;

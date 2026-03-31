@@ -6,6 +6,18 @@ import type { UsePreferencesStoryProps } from './story/usePreferencesStoryTypes'
 import { type UsePreferencesProps } from './usePreferences';
 
 
+const messagesFixture: NonNullable<UsePreferencesProps['messages']> = {
+  es: {
+    'assistant': 'Asistente',
+    'editor': 'Editor',
+    'editor.font': 'Fuente',
+    'notifications': 'Notificaciones',
+    'workspace': 'Espacio de trabajo',
+    'Visual theme mode for the editor.': 'Modo de tema visual para el editor.',
+    'Editor font size in pixels.': 'Tamano de fuente del editor en pixeles.'
+  }
+};
+
 const meta = {
   title: 'Hooks/usePreferences',
   parameters: {
@@ -24,7 +36,10 @@ export const Default: Story = {
   args: {
     scopes: scopesFixture,
     properties: propertiesFixture as unknown as UsePreferencesProps['properties'],
-    maxDepth: 1
+    maxDepth: 1,
+    locale: 'es',
+    messages: messagesFixture,
+    debug: false
   }
 };
 
@@ -32,7 +47,10 @@ export const Depth1: Story = {
   args: {
     scopes: scopesFixture,
     properties: propertiesFixture as unknown as UsePreferencesProps['properties'],
-    maxDepth: 0
+    maxDepth: 0,
+    locale: 'es',
+    messages: messagesFixture,
+    debug: false
   }
 };
 
@@ -40,6 +58,9 @@ export const Depth3: Story = {
   args: {
     scopes: scopesFixture,
     properties: propertiesFixture as unknown as UsePreferencesProps['properties'],
-    maxDepth: 2
+    maxDepth: 2,
+    locale: 'es',
+    messages: messagesFixture,
+    debug: false
   }
 };

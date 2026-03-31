@@ -142,10 +142,10 @@ export function validateValue(property: ConfigurationProperty, value: unknown): 
   }
   if (
     property.type === 'string' &&
-    property.enumDescriptionKeys &&
-    property.enumDescriptionKeys.length !== property.enum?.length
+    property.enumDescriptions &&
+    property.enumDescriptions.length !== property.enum?.length
   ) {
-    issues.push('enumDescriptionKeys length must match enum length');
+    issues.push('enumDescriptions length must match enum length');
   }
 
   issues.push(...validateConstraintConsistency(property));

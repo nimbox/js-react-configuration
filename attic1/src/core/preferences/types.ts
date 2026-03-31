@@ -39,7 +39,7 @@ type BaseConfigurationProperty<
 export type StringConfigurationProperty = BaseConfigurationProperty<'string', string> & {
   enum?: string[];
   enumLabels?: string[];
-  enumDescriptionKeys?: string[];
+  enumDescriptions?: string[];
 };
 
 export type NumberConfigurationProperty = BaseConfigurationProperty<'number', number>;

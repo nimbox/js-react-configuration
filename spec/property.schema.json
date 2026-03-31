@@ -22,7 +22,7 @@
             "type": "string"
           }
         },
-        "enumDescriptionKeys": {
+        "enumDescriptions": {
           "type": "array",
           "items": {
             "type": "string"
@@ -72,7 +72,7 @@
         },
         {
           "if": {
-            "required": ["enumDescriptionKeys"]
+            "required": ["enumDescriptions"]
           },
           "then": {
             "required": ["enum"]
@@ -135,7 +135,7 @@
         "type": "string"
       }
     },
-    "enumDescriptionKeys": {
+    "enumDescriptions": {
       "type": "array",
       "items": {
         "type": "string"
