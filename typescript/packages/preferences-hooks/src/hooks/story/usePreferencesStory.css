@@ -146,4 +146,53 @@
 .usePreferencesStoryPropertyTitle {
   font-size: 13px;
   color: #18181b;
+  margin-bottom: 6px;
+}
+
+.usePreferencesStoryPropertyEditor {
+  width: 100%;
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 13px;
+  color: #18181b;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.usePreferencesStoryPropertyEditorTextarea {
+  min-height: 92px;
+  resize: vertical;
+}
+
+.usePreferencesStoryPropertyEditor.hasError {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.usePreferencesStoryPropertyCheckboxWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #18181b;
+}
+
+.usePreferencesStoryPropertyError {
+  margin-top: 6px;
+  color: #b91c1c;
+  font-size: 12px;
+}
+
+.usePreferencesStoryPropertyReset {
+  margin-top: 6px;
+  border: 1px solid #d4d4d8;
+  background: #fff;
+  color: #3f3f46;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
 }

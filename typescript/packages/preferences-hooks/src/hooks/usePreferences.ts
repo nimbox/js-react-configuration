@@ -1,5 +1,5 @@
-import type { PreferenceProperty } from "@nimbox/preferences";
-import { useMemo } from 'react';
+import { ParseError, isParseError, parse, type ParsePropertyValue, type PreferenceProperty } from "@nimbox/preferences";
+import { useCallback, useMemo } from 'react';
 import { makeGroups } from './makeGroups';
 
 export type LocalizationMessages = Record<string, Record<string, string>>;
@@ -8,6 +8,8 @@ export type UsePreferencesProps = {
     scopes: string[];
     scope?: string;
     properties: Record<string, PreferenceProperty>;
+    parse?: ParsePropertyValue;
+    onChange?: (scope: string, key: string, value: unknown) => void;
     propertyPredicate?: (key: string, property: PreferenceProperty) => boolean;
     locale?: string;
     messages?: LocalizationMessages;
@@ -16,7 +18,17 @@ export type UsePreferencesProps = {
 
 export function usePreferences(props: UsePreferencesProps) {
 
-    const { scopes, scope, properties, propertyPredicate, locale, messages, debug = false } = props;
+    const {
+        scopes,
+        scope,
+        properties,
+        parse: parsePropertyValue = parse,
+        onChange: persistChange,
+        propertyPredicate,
+        locale,
+        messages,
+        debug = false
+    } = props;
 
     const localeMessages = useMemo(() => {
         if (!locale) {
@@ -46,6 +58,7 @@ export function usePreferences(props: UsePreferencesProps) {
         const entries = Object.entries(properties).map(([propertyKey, property]) => {
             const localizedProperty: PreferenceProperty = {
                 ...property,
+                __propertyKey: propertyKey,
                 description: translate(String(property.description ?? ''), 'lastSegment')
             };
             if (property.deprecationMessage) {
@@ -120,13 +133,57 @@ export function usePreferences(props: UsePreferencesProps) {
         };
         return initialGroups.map((group) => localizeGroup(group));
     }, [filteredProperties, translate]);
+
+    const onChange = useCallback((targetScope: string, key: string, value: unknown) => {
+        const property = properties[key];
+        if (!property) {
+            throw new ParseError([{
+                code: 'property-not-found',
+                input: value,
+                path: [key],
+                message: 'validation.property.notFound'
+            }]);
+        }
+
+        let parsedValue: unknown;
+        try {
+            parsedValue = parsePropertyValue(property, value);
+        } catch (error) {
+            if (isParseError(error)) {
+                throw error;
+            }
+            throw new ParseError([{
+                code: 'parse-unexpected',
+                input: value,
+                path: [key],
+                message: 'validation.parse.unexpected'
+            }]);
+        }
+
+        try {
+            persistChange?.(targetScope, key, parsedValue);
+        } catch (error) {
+            if (isParseError(error)) {
+                throw error;
+            }
+            throw new ParseError([{
+                code: 'persistence-failed',
+                input: parsedValue,
+                path: [key],
+                message: 'validation.persistence.failed'
+            }]);
+        }
+
+        return parsedValue;
+    }, [properties, parsePropertyValue, persistChange]);
     
     return {
         preferences: [],
         scopes,
         scope: selectedScope,
         properties: filteredProperties,
-        groups
+        groups,
+        onChange
     };
 
 }

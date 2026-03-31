@@ -4,7 +4,10 @@ import type { PropertyDisplayItem, RenderedSection } from './usePreferencesStory
 
 function mapPropertyItems(group: PropertyGroup): PropertyDisplayItem[] {
   return group.properties.map((property, index) => {
-    const propertyKey = `${group.key}::${index}`;
+    const explicitPropertyKey = typeof property.__propertyKey === 'string'
+      ? property.__propertyKey
+      : undefined;
+    const propertyKey = explicitPropertyKey ?? `${group.key}::${index}`;
     return {
       propertyKey,
       propertyTitle: property.description || propertyKey,
