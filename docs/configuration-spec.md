@@ -166,7 +166,7 @@ structure:
             "ar.alignment.right"
           ],
           "default": "left",
-          "descriptionKey": "ar.alignment.description"
+          "description": "ar.alignment.description"
         }
       }
     },
@@ -224,13 +224,13 @@ Each `Property` in `configuration.properties` must define:
 - `scope` (required)
 - `overridable` (required boolean)
 - `default` (required)
-- `description` (required localization key; resolved to Markdown
-  when available, otherwise rendered as the key text)
+- `description` (required string; may be either a localization key or
+  literal Markdown text)
 
 Optional shared metadata:
 
-- `deprecationMessage` (localization key; resolved to Markdown
-  when available, otherwise rendered as the key text)
+- `deprecationMessage` (optional string; may be either a localization
+  key or literal Markdown text)
 - `order`
 - `tags`
 - `additionalProperties` (for object-like extensibility where
@@ -249,9 +249,9 @@ Scope and override semantics:
 
 ## Localization Contract (Optional)
 
-Localization is key-first:
+Localization supports key lookup with literal-text fallback:
 
-- Schema fields store message keys, not final display text.
+- Schema text fields may store either localization keys or final display text.
 - Localization contribution is optional.
 - When provided, display text is resolved from
   `contributes.localization.messages`.
@@ -284,8 +284,13 @@ Fallback policy:
 
 - If localization exists and a key is missing in the requested locale,
   resolution falls back to `defaultLocale`.
-- If a key cannot be resolved from localization, the key itself
-  becomes the displayed text.
+- For fields that may contain key-or-text values (for example,
+  `description` and `deprecationMessage`), resolve as follows:
+  1. If localization exists and the field value is found as a key in
+     the requested locale, use that message.
+  2. Else if localization exists and the field value is found as a key
+     in `defaultLocale`, use that message.
+  3. Else use the field value as literal Markdown text.
 - Missing localization keys may emit warnings but do not invalidate a
   fragment.
 
@@ -394,8 +399,8 @@ For every property:
 - `scope` exists and is a non-empty string.
 - `overridable` exists and is a boolean.
 - `default` exists and matches `type`.
-- `descriptionKey` exists and is a non-empty string key.
-- If `deprecationMessageKey` exists, it is a non-empty string key.
+- `description` exists and is a non-empty string.
+- If `deprecationMessage` exists, it is a non-empty string.
 - If `enum` exists, `default` must be a member of `enum`.
 - If `enumLabels` exists, its length equals `enum.length`.
 - If `enumDescriptionKeys` exists, its length equals `enum.length`.
@@ -411,16 +416,16 @@ For every property:
 
 - If localization exists, `title` should exist in the `defaultLocale`
   catalog.
-- If localization exists, every `descriptionKey` should exist in
-  `defaultLocale`.
-- If localization exists, every `deprecationMessageKey` key (when
-  present) should exist in `defaultLocale`.
+- If localization exists and `description` is intended as a key, it
+  should exist in `defaultLocale`.
+- If localization exists and `deprecationMessage` is intended as a key
+  (when present), it should exist in `defaultLocale`.
 - If localization exists, every key in `enumDescriptionKeys` (when
   present) should exist in `defaultLocale`.
 - If localization exists, every locale in `supportedLocales` should
   exist in `messages`.
-- Missing keys do not invalidate a fragment; unresolved keys render as
-  their original key text.
+- Missing keys do not invalidate a fragment; unresolved values for
+  key-or-text fields render as their original field text.
 
 ### Composed Schema Checks
 
@@ -489,14 +494,14 @@ Fragment `ar-app`:
             "ar.alignment.right"
           ],
           "default": "left",
-          "descriptionKey": "ar.alignment.description"
+          "description": "ar.alignment.description"
         },
         "ar.enableHints": {
           "type": "boolean",
           "scope": "user",
           "overridable": false,
           "default": false,
-          "descriptionKey": "ar.enableHints.description"
+          "description": "ar.enableHints.description"
         }
       }
     },
@@ -542,7 +547,7 @@ Fragment `editor-app`:
           "minimum": 10,
           "maximum": 32,
           "default": 14,
-          "descriptionKey": "editor.fontSize.description"
+          "description": "editor.fontSize.description"
         }
       }
     },
@@ -565,9 +570,9 @@ Fragment `editor-app`:
 ```json
 {
   "properties": {
-    "ar.alignment": { "type": "string", "scope": "system", "overridable": true, "enum": ["left", "center", "right"], "enumDescriptionKeys": ["ar.alignment.left", "ar.alignment.center", "ar.alignment.right"], "default": "left", "descriptionKey": "ar.alignment.description" },
-    "ar.enableHints": { "type": "boolean", "scope": "user", "overridable": false, "default": false, "descriptionKey": "ar.enableHints.description" },
-    "editor.fontSize": { "type": "number", "scope": "user", "overridable": false, "minimum": 10, "maximum": 32, "default": 14, "descriptionKey": "editor.fontSize.description" }
+    "ar.alignment": { "type": "string", "scope": "system", "overridable": true, "enum": ["left", "center", "right"], "enumDescriptionKeys": ["ar.alignment.left", "ar.alignment.center", "ar.alignment.right"], "default": "left", "description": "ar.alignment.description" },
+    "ar.enableHints": { "type": "boolean", "scope": "user", "overridable": false, "default": false, "description": "ar.enableHints.description" },
+    "editor.fontSize": { "type": "number", "scope": "user", "overridable": false, "minimum": 10, "maximum": 32, "default": 14, "description": "editor.fontSize.description" }
   }
 }
 ```
@@ -595,46 +600,64 @@ Fragment `editor-app`:
   
 ## Hierarchical display expectations
 
-When working with the GUI we need to have some way to group and
-order all the properties. We will leverage the period-based name of
-the key as the hierarchy. The keys should have at least two
-levels, for example, we can't have a key `color` we need to have 
-a key `editor.color`. 
+The GUI groups and orders properties by their period-delimited key
+segments.
 
-So let's assume that we have the following list of properties:
+Key shape and node semantics:
 
-- editor
-- editor.color
-- editor.backgroundColor
-- editor.font
-- editor.font.size
-- editor.fond.color
+- Property keys must contain at least two segments. Example: `editor.color`.
+- Single-segment keys like `color` are invalid.
+- Any prefix that appears before another segment is a **group node**.
+- Group nodes are derived from property keys and are not properties.
+- A node cannot be both a group and a property. Example:
+  `editor.font.size` and `editor.font.color` are valid, but
+  `editor.font` cannot also be a property.
 
-They should be rendered as:
+Tree construction example:
 
-- [+] editor 
-  - color
-  - backgroundColor 
-  - [+] font
-    - size
-    - color
-   
-For each level, and for each property, we need to have a localization 
-message. For example, we need to have the following localization keys.
+Input properties:
 
-```json
-{ 
-    "editor": "Editor",
-    "editor.color": "Color",
-    "editor.color.desciption": "Descripción de qué hace este color",
-    "editor.color.backgroundColor": "Color del fondo",
-    "editor.color.backgroundColor.description": "Descripción de qué hace este color",
-    "editor.font": "Fuentes",
-    "editor.font.size": "Tamaño de la fuente",
-    "editor.font.color": "Color de la fuente"
-}
-```
+- `editor.color`
+- `editor.backgroundColor`
+- `editor.font.size`
+- `editor.font.color`
 
+Rendered hierarchy:
+
+- `[+] editor`
+  - `color`
+  - `backgroundColor`
+  - `[+] font`
+    - `size`
+    - `color`
+
+Localization requirements:
+
+- Every group node must have a localization message.
+- Every property key must have a localization message.
+- Display labels are resolved from the localization map using the full node
+  key (`editor.font`, `editor.font.size`, etc.).
+- If a localization message exists for that key, use it as the label.
+- If no localization message exists, build a fallback label from the relevant
+  segment:
+  - take the last key segment,
+  - capitalize the first letter,
+  - split camelCase boundaries into spaces.
+  Example: `backgroundColor` becomes `Background color`.
+- Sorting by label uses the resolved localized name for the active locale.
+- Label comparisons are case-insensitive.
+
+Ordering rules:
+
+1. Every property may declare an `order` number.
+2. Group node order is the minimum `order` among descendant properties
+   that define `order`.
+3. If a node has no order (property without `order`, or group with no
+   descendant order), treat its order as a very large value so it is
+   sorted after all explicitly ordered nodes.
+4. Sort by effective order ascending.
+5. When effective order is the same, sort lexicographically by localized
+   label (case-insensitive).
 
 
 ## Non-Goals
