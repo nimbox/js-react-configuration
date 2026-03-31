@@ -3,6 +3,7 @@ import type { UsePreferencesProps } from '../usePreferences';
 
 export type UsePreferencesStoryProps = UsePreferencesProps & {
   maxDepth: number;
+  initialQuery?: string;
 };
 
 export interface PropertyDisplayItem {

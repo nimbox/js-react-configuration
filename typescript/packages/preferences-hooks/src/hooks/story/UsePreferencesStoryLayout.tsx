@@ -1,5 +1,5 @@
-import type { PropertyGroup } from '@nimbox/preferences';
-import { useCallback, useMemo, useRef, type CSSProperties } from 'react';
+import type { PreferenceProperty, PropertyGroup } from '@nimbox/preferences';
+import { useCallback, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { usePreferences } from '../usePreferences';
 import { useSectionNavigationSync } from '../useSectionNavigationSync';
 import './usePreferencesStory.css';
@@ -111,9 +111,25 @@ function PropertiesSections(props: {
 
 export function UsePreferencesStoryLayout(props: UsePreferencesStoryProps) {
 
-  const { maxDepth, ...preferencesProps } = props;
-  const { groups } = usePreferences(preferencesProps);
+  const { maxDepth, initialQuery = '', ...preferencesProps } = props;
+  const [query, setQuery] = useState(initialQuery);
   const propertiesScrollRef = useRef<HTMLElement | null>(null);
+  const normalizedQuery = useMemo(() => query.trim().toLowerCase(), [query]);
+
+  const propertyPredicate = useMemo(() => {
+    if (!normalizedQuery) {
+      return undefined;
+    }
+    return (key: string, property: PreferenceProperty) => {
+      const description = String(property.description ?? '').toLowerCase();
+      return key.toLowerCase().includes(normalizedQuery) || description.includes(normalizedQuery);
+    };
+  }, [normalizedQuery]);
+
+  const { groups } = usePreferences({
+    ...preferencesProps,
+    propertyPredicate
+  });
 
   const sections = useMemo(() => buildRenderedSections(groups, maxDepth), [groups, maxDepth]);
   const sectionIds = useMemo(() => sections.map((section) => section.sectionId), [sections]);
@@ -140,7 +156,20 @@ export function UsePreferencesStoryLayout(props: UsePreferencesStoryProps) {
     <div className="usePreferencesStoryRoot">
       <div className="usePreferencesStoryLayout">
         <div className="usePreferencesStoryRow">
-          Max depth: {maxDepth}
+          <div className="usePreferencesStoryTopBar">
+            <span>Max depth: {maxDepth}</span>
+            <label className="usePreferencesStoryQueryControl">
+              <span>Query</span>
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => {
+                  setQuery(event.target.value);
+                }}
+                placeholder="Filter by key or description..."
+              />
+            </label>
+          </div>
         </div>
         <div className="usePreferencesStoryRow">Scopes row</div>
         <div className="usePreferencesStoryContent">

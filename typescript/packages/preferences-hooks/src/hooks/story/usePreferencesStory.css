@@ -21,6 +21,29 @@
   overflow: auto;
 }
 
+.usePreferencesStoryTopBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.usePreferencesStoryQueryControl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #52525b;
+  font-size: 13px;
+}
+
+.usePreferencesStoryQueryControl input {
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  padding: 4px 8px;
+  min-width: 260px;
+  font: inherit;
+}
+
 .usePreferencesStoryContent {
   display: grid;
   grid-template-columns: 260px 1fr;
