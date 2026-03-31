@@ -26,3 +26,4 @@ The library is designed so host applications can define their own ordered scope 
 
 - Main specification: `docs/configuration-spec.md`
 - Legacy notes: `docs/configuration.md`
+
