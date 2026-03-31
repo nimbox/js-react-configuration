@@ -35,6 +35,7 @@ type Story = StoryObj<UsePreferencesStoryProps>;
 export const Default: Story = {
   args: {
     scopes: scopesFixture,
+    scope: 'user',
     properties: propertiesFixture as unknown as UsePreferencesProps['properties'],
     maxDepth: 1,
     locale: 'es',
@@ -46,6 +47,7 @@ export const Default: Story = {
 export const Depth1: Story = {
   args: {
     scopes: scopesFixture,
+    scope: 'application',
     properties: propertiesFixture as unknown as UsePreferencesProps['properties'],
     maxDepth: 0,
     locale: 'es',
@@ -57,6 +59,7 @@ export const Depth1: Story = {
 export const Depth3: Story = {
   args: {
     scopes: scopesFixture,
+    scope: 'global',
     properties: propertiesFixture as unknown as UsePreferencesProps['properties'],
     maxDepth: 2,
     locale: 'es',

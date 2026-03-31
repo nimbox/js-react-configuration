@@ -1,5 +1,5 @@
 import type { PreferenceProperty, PropertyGroup } from '@nimbox/preferences';
-import { useCallback, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { usePreferences } from '../usePreferences';
 import { useSectionNavigationSync } from '../useSectionNavigationSync';
 import './usePreferencesStory.css';
@@ -67,7 +67,7 @@ function PropertyCard(props: { propertyItem: PropertyDisplayItem; level: number 
       style={{ '--indent': `${level * 12}px` } as CSSProperties}
     >
       <div className="usePreferencesStoryPropertyMeta">
-        {property.type} - {property.scope}
+        {property.type} - {property.scope} - {property.overridable ? 'overridable' : 'locked'}
       </div>
       <div className="usePreferencesStoryPropertyTitle">
         {propertyTitle}
@@ -111,10 +111,35 @@ function PropertiesSections(props: {
 
 export function UsePreferencesStoryLayout(props: UsePreferencesStoryProps) {
 
-  const { maxDepth, initialQuery = '', ...preferencesProps } = props;
+  const {
+    maxDepth,
+    initialQuery = '',
+    scope: providedScope,
+    scopes,
+    ...preferencesProps
+  } = props;
   const [query, setQuery] = useState(initialQuery);
+  const [selectedScope, setSelectedScope] = useState(() => {
+    if (providedScope && scopes.includes(providedScope)) {
+      return providedScope;
+    }
+    return scopes[scopes.length - 1] ?? '';
+  });
   const propertiesScrollRef = useRef<HTMLElement | null>(null);
   const normalizedQuery = useMemo(() => query.trim().toLowerCase(), [query]);
+
+  useEffect(() => {
+    if (providedScope && scopes.includes(providedScope)) {
+      setSelectedScope(providedScope);
+      return;
+    }
+    setSelectedScope((previousScope) => {
+      if (scopes.includes(previousScope)) {
+        return previousScope;
+      }
+      return scopes[scopes.length - 1] ?? '';
+    });
+  }, [providedScope, scopes]);
 
   const propertyPredicate = useMemo(() => {
     if (!normalizedQuery) {
@@ -128,6 +153,8 @@ export function UsePreferencesStoryLayout(props: UsePreferencesStoryProps) {
 
   const { groups } = usePreferences({
     ...preferencesProps,
+    scopes,
+    scope: selectedScope,
     propertyPredicate
   });
 
@@ -171,7 +198,25 @@ export function UsePreferencesStoryLayout(props: UsePreferencesStoryProps) {
             </label>
           </div>
         </div>
-        <div className="usePreferencesStoryRow">Scopes row</div>
+        <div className="usePreferencesStoryRow">
+          <div className="usePreferencesStoryTopBar">
+            <span>Scope</span>
+            <div className="usePreferencesStoryScopeButtons" role="group" aria-label="Scope selector">
+              {scopes.map((scopeName) => (
+                <button
+                  key={scopeName}
+                  type="button"
+                  className={`usePreferencesStoryScopeButton${selectedScope === scopeName ? ' isActive' : ''}`}
+                  onClick={() => {
+                    setSelectedScope(scopeName);
+                  }}
+                >
+                  {scopeName}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
         <div className="usePreferencesStoryContent">
 
           <aside className="usePreferencesStoryNav">

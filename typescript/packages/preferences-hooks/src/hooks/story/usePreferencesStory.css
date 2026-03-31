@@ -36,12 +36,38 @@
   font-size: 13px;
 }
 
-.usePreferencesStoryQueryControl input {
+.usePreferencesStoryQueryControl input,
+.usePreferencesStoryQueryControl select {
   border: 1px solid #d4d4d8;
   border-radius: 6px;
   padding: 4px 8px;
   min-width: 260px;
   font: inherit;
+}
+
+.usePreferencesStoryScopeButtons {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.usePreferencesStoryScopeButton {
+  border: 1px solid #d4d4d8;
+  background: #fff;
+  color: #27272a;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.usePreferencesStoryScopeButton.isActive {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+  color: #3730a3;
+  font-weight: 600;
 }
 
 .usePreferencesStoryContent {

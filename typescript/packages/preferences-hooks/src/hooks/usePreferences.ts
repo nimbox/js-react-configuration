@@ -6,6 +6,7 @@ export type LocalizationMessages = Record<string, Record<string, string>>;
 
 export type UsePreferencesProps = {
     scopes: string[];
+    scope?: string;
     properties: Record<string, PreferenceProperty>;
     propertyPredicate?: (key: string, property: PreferenceProperty) => boolean;
     locale?: string;
@@ -15,7 +16,7 @@ export type UsePreferencesProps = {
 
 export function usePreferences(props: UsePreferencesProps) {
 
-    const { scopes, properties, propertyPredicate, locale, messages, debug = false } = props;
+    const { scopes, scope, properties, propertyPredicate, locale, messages, debug = false } = props;
 
     const localeMessages = useMemo(() => {
         if (!locale) {
@@ -66,14 +67,47 @@ export function usePreferences(props: UsePreferencesProps) {
         return Object.fromEntries(entries) as Record<string, PreferenceProperty>;
     }, [properties, translate]);
 
-    const filteredProperties = useMemo(() => {
-        if (!propertyPredicate) {
+    const scopeIndex = useMemo(() => {
+        return new Map(scopes.map((scopeName, index) => [scopeName, index]));
+    }, [scopes]);
+
+    const selectedScope = useMemo(() => {
+        if (scope && scopeIndex.has(scope)) {
+            return scope;
+        }
+        return scopes[scopes.length - 1];
+    }, [scope, scopeIndex, scopes]);
+
+    const scopeFilteredProperties = useMemo(() => {
+        if (!selectedScope) {
+            return localizedProperties;
+        }
+        const selectedScopeIndex = scopeIndex.get(selectedScope);
+        if (selectedScopeIndex === undefined) {
             return localizedProperties;
         }
         return Object.fromEntries(
-            Object.entries(localizedProperties).filter(([key, property]) => propertyPredicate(key, property))
+            Object.entries(localizedProperties).filter(([, property]) => {
+                const propertyScopeIndex = scopeIndex.get(property.scope);
+                if (propertyScopeIndex === undefined) {
+                    return false;
+                }
+                if (propertyScopeIndex === selectedScopeIndex) {
+                    return true;
+                }
+                return propertyScopeIndex < selectedScopeIndex && property.overridable;
+            })
         ) as Record<string, PreferenceProperty>;
-    }, [localizedProperties, propertyPredicate]);
+    }, [localizedProperties, scopeIndex, selectedScope]);
+
+    const filteredProperties = useMemo(() => {
+        if (!propertyPredicate) {
+            return scopeFilteredProperties;
+        }
+        return Object.fromEntries(
+            Object.entries(scopeFilteredProperties).filter(([key, property]) => propertyPredicate(key, property))
+        ) as Record<string, PreferenceProperty>;
+    }, [scopeFilteredProperties, propertyPredicate]);
 
     const groups = useMemo(() => {
         const initialGroups = makeGroups(filteredProperties);
@@ -90,6 +124,7 @@ export function usePreferences(props: UsePreferencesProps) {
     return {
         preferences: [],
         scopes,
+        scope: selectedScope,
         properties: filteredProperties,
         groups
     };
