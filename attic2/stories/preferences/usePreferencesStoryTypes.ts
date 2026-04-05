@@ -1,6 +1,8 @@
-import type { ParseError, PreferenceProperty } from '@nimbox/preferences';
-import type { LocalizationMessages, UsePreferencesProps } from '../usePreferences';
+import type { ParseError, PreferenceValue, PreferenceProperty } from '@nimbox/preferences';
+import type { RegisterResult } from '../../hooks/useInstantEditor';
+import type { LocalizationMessages, UsePreferencesProps } from '../../hooks/usePreferences';
 export type { ParseError } from '@nimbox/preferences';
+
 
 export type UsePreferencesStoryProps = UsePreferencesProps & {
   maxDepth: number;
@@ -10,10 +12,8 @@ export type UsePreferencesStoryProps = UsePreferencesProps & {
 
 export type ScopedPropertyValues = Record<string, Record<string, unknown>>;
 
-export type PropertyChangeHandler = (scope: string, key: string, value: unknown) => unknown;
-
-export type InvalidDraftValues = Record<string, Record<string, unknown>>;
-export type ValidationErrorValues = Record<string, Record<string, ParseError>>;
+export type PreferencesByKey = Record<string, PreferenceValue>;
+export type ErrorsByKey = Record<string, ParseError | undefined>;
 
 export interface PropertyDisplayItem {
   propertyKey: string;
@@ -22,15 +22,11 @@ export interface PropertyDisplayItem {
 }
 
 export interface PropertyCardEditorProps {
-  scope: string;
   propertyItem: PropertyDisplayItem;
   level: number;
-  committedValue: unknown;
-  invalidDraft?: unknown;
-  validationError?: ParseError;
-  onChange: PropertyChangeHandler;
-  onInvalidDraft: (scope: string, key: string, draft: unknown, error: ParseError) => void;
-  onClearInvalid: (scope: string, key: string) => void;
+  preference: PreferenceValue;
+  error?: ParseError;
+  field: RegisterResult;
   locale?: string;
   messages?: LocalizationMessages;
 }

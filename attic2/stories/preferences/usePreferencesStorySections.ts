@@ -1,7 +1,6 @@
 import type { PropertyGroup } from '@nimbox/preferences';
 import type { PropertyDisplayItem, RenderedSection } from './usePreferencesStoryTypes';
 
-
 function mapPropertyItems(group: PropertyGroup): PropertyDisplayItem[] {
   return group.properties.map((property, index) => {
     const explicitPropertyKey = typeof property.__propertyKey === 'string'

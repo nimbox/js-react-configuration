@@ -1,0 +1,50 @@
+---
+description: Formatting rules for the TypeScript workspace
+globs:
+  - typescript/packages/**/*
+---
+
+
+## Newlines, imports & indentation (`preferences-hooks`)
+
+- **Indentation:** Use **4 spaces** everywhere (all `.ts` / `.tsx`
+  files).
+- **After imports:** Always put **exactly two blank lines** after the
+  last `import` before the next top-level declaration, in **every**
+  file.
+
+## Interfaces, types & props — **order matters**
+
+- **Do not reorder** existing fields in interfaces, type aliases, or
+  component/hook props “for cleanup” or alphabetically unless the user
+  asks. Treat the written order as **meaningful** (reading flow,
+  grouping, or public API shape).
+- **When adding** a field, extend the existing order: place it **next
+  to related fields** or at the **end of the appropriate group** (e.g.
+  required inputs together, optional tuning together, callbacks
+  together)—never scatter without reason.
+- **Mirror order where it helps:** `props` destructuring and `function
+  Component({ a, b, c })` should follow the **same order as the props
+  interface** when practical, so definition and usage stay easy to
+  scan.
+- **Related types** (e.g. `FooProps` and `UseFooProps`, or
+  parent/child props) should use a **consistent field order** for
+  overlapping concepts when both exist.
+
+## Newlines & vertical rhythm (rest)
+
+- **Functions/components (TSX & hooks):** One blank line immediately
+  inside `{` before the first statement; blank line before `return`
+  when there is preceding logic; blank line before the closing `}` of
+  the function.
+- **Interfaces:** Optional blank line after `{`; use blank lines to
+  **group related fields**; within a group, order is **intentional**,
+  not arbitrary.
+- **JSX:** Use blank lines to separate **major sibling blocks**.
+- **Utils:** Same import rule and 4-space indent; inside functions,
+  blank lines between **clear logical steps** unless the function is
+  large enough to warrant TSX-style spacing.
+
+**For assistants:** Enforce **4 spaces**, **two blank lines after
+imports**, and **preserve / extend interface & props ordering**—never
+reshuffle member order without explicit instruction.

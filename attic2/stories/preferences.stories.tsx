@@ -1,10 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import propertiesFixture from '../../../../../fixtures/properties.json';
 import scopesFixture from '../../../../../fixtures/scopes.json';
-import { UsePreferencesStoryLayout } from './story/UsePreferencesStoryLayout';
-import type { UsePreferencesStoryProps } from './story/usePreferencesStoryTypes';
-import { type UsePreferencesProps } from './usePreferences';
-
+import { UsePreferencesStoryLayout } from './preferences/UsePreferencesStoryLayout';
+import type { UsePreferencesStoryProps } from './preferences/usePreferencesStoryTypes';
+import { type UsePreferencesProps } from '../hooks/usePreferences';
 
 const messagesFixture: NonNullable<UsePreferencesProps['messages']> = {
   es: {
@@ -30,7 +29,9 @@ const messagesFixture: NonNullable<UsePreferencesProps['messages']> = {
     'validation.array.maxItems': 'Debe tener como maximo {maxItems} elementos.',
     'validation.persistence.failed': 'No se pudo guardar el valor.',
     'validation.property.notFound': 'No se encontro la propiedad.',
-    'validation.parse.unexpected': 'Error inesperado al validar.'
+    'validation.parse.unexpected': 'Error inesperado al validar.',
+    'ui.property.overridden': 'Sobrescrito',
+    'ui.property.default': 'Predeterminado'
   }
 };
 
@@ -69,7 +70,6 @@ const meta = {
 export default meta;
 
 type Story = StoryObj<UsePreferencesStoryProps>;
-
 
 export const Default: Story = {
   args: {

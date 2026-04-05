@@ -67,7 +67,6 @@ export function useScrollSpy(options: UseScrollSpyOptions) {
 
     const container = containerRef.current;
     if (!container || stableSectionIds.length === 0) {
-      setActiveSectionId(null);
       return;
     }
 
@@ -107,6 +106,8 @@ export function useScrollSpy(options: UseScrollSpyOptions) {
 
   }, [containerRef, getSection, isPaused, rootMargin, stableSectionIds, threshold]);
 
-  return { activeSectionId };
+  const normalizedActiveSectionId = stableSectionIds.length === 0 ? null : activeSectionId;
+
+  return { activeSectionId: normalizedActiveSectionId };
 
 }

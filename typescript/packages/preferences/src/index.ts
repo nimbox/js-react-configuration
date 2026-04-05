@@ -1,4 +1,11 @@
 export type * from './generated/types';
 export type * from './types';
+export { localize } from './utils/localize';
+export type { LocalizeResult } from './utils/localize';
 export { isParseError, parse, ParseError, parseSafe } from './utils/parse';
 export type { ParseIssue, ParsePropertyValue, ParseSafeResult } from './utils/parse';
+export { resolve } from './utils/resolve';
+export type { ScopedValues as ResolveScopedValues } from './utils/resolve';
+export { translate } from './utils/translate';
+export type { TranslateOptions, TranslateResult, TranslationFallback } from './utils/translate';
+export * from './utils/stratify';
